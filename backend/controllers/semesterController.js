@@ -99,6 +99,12 @@ const copySemester = async (req, res) => {
     }
 }
 
+const deleteSemester = async (req, res) => {
+    const {id} = req.body;
+    await SEMESTER.deleteMany({_id:id})
+    res.status(200).send("Sem Deleted")
+}
+
 const getAllSemester = async (req, res) => {
 
     try {
@@ -155,6 +161,7 @@ const getSemesterInformation = async (req, res) => {
 }
 
 module.exports = {
+    deleteSemester,
     createSemester,
     getAllSemester,
     copySemester,

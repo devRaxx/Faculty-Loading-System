@@ -3,7 +3,8 @@ const {
   createSemester,
   getAllSemester,
   copySemester,
-  getSemesterInformation
+  getSemesterInformation,
+  deleteSemester
 } = require('../controllers/semesterController')
 const { requireAuth,requireAdminAuth,requireSuperUserAuth } = require('../middleware/auth')
 const router = express.Router()
@@ -16,6 +17,8 @@ router.get('/', getAllSemester)
 router.get('/:sem', getSemesterInformation)
 
 router.post('/copy', copySemester)
+
+router.delete('/', deleteSemester)
 
 module.exports = router
 
