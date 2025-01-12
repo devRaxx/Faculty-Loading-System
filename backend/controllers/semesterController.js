@@ -222,6 +222,7 @@ const deleteSemester = async (req, res) => {
 
 module.exports = {
   createSemester,
+  deleteSemester,
   getAllSemester,
   copySemester,
   getSemesterInformation,

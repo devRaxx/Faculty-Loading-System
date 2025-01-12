@@ -25,5 +25,3 @@ router.post("/copy", copySemester);
 router.delete("/", deleteSemester);
 
 module.exports = router;
-
-module.exports = router;
