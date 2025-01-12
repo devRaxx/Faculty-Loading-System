@@ -3,7 +3,6 @@ import NavBar from "../components/NavBar/NavBar";
 import { TiExport } from "react-icons/ti";
 import { FaRegFileAlt } from "react-icons/fa";
 import { FaRegFile } from "react-icons/fa";
-import { useDisclosure } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import * as XLSX from "xlsx"; // Import SheetJS
@@ -12,8 +11,8 @@ const Export = () => {
   const navigate = useNavigate();
   const [semData, setSemData] = useState(null);
   const [userData, setUserData] = useState({});
-  const [selectedRow, setSelectedRow] = useState(null);
   const params = useParams();
+
   // Fetch user data
   useEffect(() => {
     (async function () {
@@ -46,69 +45,68 @@ const Export = () => {
     })();
   }, []);
 
-  const handleRowClick = (index) => {
-    setSelectedRow(index);
-  };
-
   // Function to export table data
   const handleExportClick = async (id) => {
-    // if (!semData || semData.length === 0) {
-    //   alert("No data available to export.");
-    //   return;
-    // }
+    try {
+      const res = await fetch(`http://localhost:4000/api/semester/${id}/`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const { schedules } = await res.json();
 
-    const res = await fetch(`http://localhost:4000/api/semester/${id}/`, {
-      method: "GET",
-      credentials: "include",
-    });
-    const sem_data = await res.json();
-    setSemData(sem_data);
-    console.log(sem_data);
-    // Define headers
-    // const headers = [
-    //   "Course Code",
-    //   "Course Description",
-    //   "Class",
-    //   "Section",
-    //   "Time",
-    //   "Day",
-    //   "Room",
-    //   "Units",
-    //   "Students",
-    //   "FIC",
-    //   "Remarks",
-    // ];
+      // Prepare data for export
+      const headers = [
+        "Course Code",
+        "Course Description",
+        "Class",
+        "Section",
+        "Time",
+        "Day",
+        "Rm",
+        "Units",
+        "Students",
+        "FIC",
+        "Remarks",
+      ];
 
-    // // Prepare data for export
-    // const data = sem_data.map((sem) => ({
-    //   "Course Code": sem.courseCode || "N/A",
-    //   "Course Description": sem.courseDescription || "N/A",
-    //   Class: sem.classType || "N/A",
-    //   Section: sem.section || "N/A",
-    //   Time:
-    //     sem.schedule
-    //       ?.map(({ startTime, endTime }) => `${startTime} - ${endTime}`)
-    //       .join(", ") || "N/A",
-    //   Day: sem.schedule?.map(({ day }) => day.join(", ")).join(", ") || "N/A",
-    //   Room: sem.room || "N/A",
-    //   Units: sem.units || "N/A",
-    //   Students: sem.students?.map(({ name }) => name).join(", ") || "N/A",
-    //   FIC: sem.fic || "N/A",
-    //   Remarks: sem.remarks || "N/A",
-    // }));
+      const data = schedules.map((schedule) => ({
+        "Course Code": schedule.course.code || "N/A",
+        "Course Description": schedule.course.name || "N/A",
+        Class: schedule.course.type || "N/A",
+        Section: schedule.schedule[0]?.section || "N/A",
+        Time: schedule.schedule
+          .map(
+            (time) => `${time.startTime || "N/A"} - ${time.endTime || "N/A"}`
+          )
+          .join(", "),
+        Day: schedule.schedule
+          .map((time) => time.day?.join(", ") || "N/A")
+          .join(", "),
+        Rm: `${schedule.room.building} ${schedule.room.name}` || "N/A",
+        Units: schedule.course.units || "N/A",
+        Students: schedule.students
+          .map((student) => student.name || "N/A")
+          .join(", "),
+        FIC:
+          `${schedule.faculty.firstName} ${schedule.faculty.lastName}` || "N/A",
+        Remarks: schedule.remarks || "N/A",
+      }));
 
-    // // Create a worksheet
-    // const worksheet = XLSX.utils.json_to_sheet(data, { header: headers });
+      // Create a worksheet
+      const worksheet = XLSX.utils.json_to_sheet(data);
 
-    // // Add headers manually (optional customization)
-    // XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: "A1" });
+      // Add headers manually (optional)
+      XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: "A1" });
 
-    // // Create a workbook and add the worksheet
-    // const workbook = XLSX.utils.book_new();
-    // XLSX.utils.book_append_sheet(workbook, worksheet, "Semester Data");
+      // Create a workbook and add the worksheet
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Semester Data");
 
-    // // Write the file
-    // XLSX.writeFile(workbook, "Semester_Data.xlsx");
+      // Write the file
+      XLSX.writeFile(workbook, "Semester_Data.xlsx");
+    } catch (error) {
+      console.error("Error exporting data:", error);
+    }
   };
 
   return (
@@ -119,7 +117,9 @@ const Export = () => {
           <>
             <button
               className="flex items-center font-semibold justify-center text-xl border-enamelled-jewel bg-placebo-turquoise text-enamelled-jewel w-32 h-11 transition ease-in duration-200 hover:shadow-custom"
-              onClick={handleExportClick}
+              onClick={() => {
+                if (semData?.length) handleExportClick(semData[0]._id);
+              }}
             >
               <TiExport /> Export
             </button>
@@ -140,13 +140,10 @@ const Export = () => {
           </thead>
           <tbody>
             {semData ? (
-              semData.map((sem, index) => (
+              semData.map((sem) => (
                 <tr
-                  className={`border-b cursor-pointer ${
-                    index === selectedRow ? "bg-placebo-turquoise" : ""
-                  }`}
+                  className="border-b cursor-pointer"
                   key={sem._id}
-                  onMouseEnter={() => handleRowClick(index)}
                   onMouseDown={() => handleExportClick(sem._id)}
                 >
                   <td className="flex text-xl font-semibold flex-row items-center text-black p-2">
