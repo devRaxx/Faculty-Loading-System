@@ -207,51 +207,22 @@ const AlphaSchedList = ({ editing }) => {
           <p className="text-8xl font-bold">Loading ...</p>
         </div>
       )}
-      {!semesterSchedules.length > 0 && !isLoading && (
-        <div className="mt-24 flex flex-col items-center justify-center">
-          <p className="text-7xl font-bold text-enamelled-jewel">
-            Start Adding the List
-          </p>
-          <p className="text-3xl p-2 font-light italic text-enamelled-jewel">
-            or
-          </p>
-          <button className="flex items-center justify-center w-96 h-20 border text-xl font-semibold text-enamelled-jewel border-enamelled-jewel rounded-md bg-placebo-turquoise transition ease-in duration-200 hover:shadow-custom">
-            <PiCopy /> Copy Alpha List
-          </button>
-        </div>
-      )}
-      {filteredSemesterSchedules.length == 0 && !isLoading && (
-        <div className="mt-24 flex flex-col items-center justify-center">
-          <p className="text-7xl font-bold text-enamelled-jewel">
-            Start Adding the List
-          </p>
-          <p className="text-3xl p-2 font-light italic text-enamelled-jewel">
-            or
-          </p>
-          <button className="flex items-center justify-center w-96 h-20 border text-xl font-semibold text-enamelled-jewel border-enamelled-jewel rounded-md bg-placebo-turquoise transition ease-in duration-200 hover:shadow-custom">
-            <PiCopy /> Copy Alpha List
-          </button>
-        </div>
-      )}
+      {!isLoading &&
+        (!semesterSchedules.length || !filteredSemesterSchedules.length) && (
+          <div className="mt-24 flex flex-col items-center justify-center">
+            <p className="text-7xl font-bold text-enamelled-jewel">
+              Start Adding the List
+            </p>
+            <p className="text-3xl p-2 font-light italic text-enamelled-jewel">
+              or
+            </p>
+            <button className="flex items-center justify-center w-96 h-20 border text-xl font-semibold text-enamelled-jewel border-enamelled-jewel rounded-md bg-placebo-turquoise transition ease-in duration-200 hover:shadow-custom">
+              <PiCopy /> Copy Alpha List
+            </button>
+          </div>
+        )}
 
       {isOpen && <EditScheduleModal onClose={onClose} isOpen={isOpen} />}
-      {/* <Modal isOpen={isOpen} onClose={onClose}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Modal Title</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        asdasd
-                    </ModalBody>
-
-                    <ModalFooter>
-                        <Button colorScheme='blue' mr={3} onClick={onClose}>
-                            Close
-                        </Button>
-                        <Button variant='ghost'>Secondary Action</Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal> */}
     </>
   );
 };
