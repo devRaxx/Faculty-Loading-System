@@ -96,6 +96,14 @@ export const semesterReducer = (state, action) => {
         ),
         selectedFaculty: action.payload,
       };
+    case "SELECT_BLOC":
+      return {
+        ...state,
+        selectedBloc: action.payload,
+        selectedBlocSchedules: state.semesterSchedules.filter(
+          (sched) => sched.bloc._id === action.payload._id
+        ),
+      };
     case "SET_EDIT_SCHEDULE":
       return {
         ...state,

@@ -26,6 +26,7 @@ const ScheduleMaker = ({ edit, weeklySchedule, setWeeklySchedule }) => {
 
   const startTimeSlots = [
     "7:00 AM",
+    "7:30 AM",
     "8:30 AM",
     "9:00 AM",
     "10:00 AM",

@@ -7,15 +7,20 @@ const BlocSearch = () => {
   const [queryParameters] = useSearchParams();
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [selectedBloc, setSelectedBloc] = useState(null); // Track selected bloc
-  const { semesterFaculties, dispatch } = useSemesterContext();
+  const { semesterBlocs, dispatch } = useSemesterContext();
 
-  const handleBlocSelection = (faculty) => {
-    setSelectedBloc(faculty); // Update selected bloc
+  // Function to format the bloc name
+  const formatBlocName = (bloc) => {
+    return `${bloc.yearLevel}${bloc.name}-${bloc.bloc}`;
+  };
+
+  const handleBlocSelection = (bloc) => {
+    setSelectedBloc(bloc); // Update selected bloc
     dispatch({
-      type: "SELECT_FACULTY",
-      payload: faculty,
-      query: queryParameters.getAll("filter"),
+      type: "SELECT_BLOC",
+      payload: bloc,
     });
+    console.log(bloc);
     setDropdownVisible(false); // Hide dropdown after selection
   };
 
@@ -30,16 +35,8 @@ const BlocSearch = () => {
           onBlur={() => {
             setTimeout(() => setDropdownVisible(false), 200); // Prevent immediate hiding
           }}
-          placeholder={
-            selectedBloc
-              ? `${selectedBloc.firstName} ${selectedBloc.lastName}`
-              : "Bloc"
-          }
-          value={
-            selectedBloc
-              ? `${selectedBloc.firstName} ${selectedBloc.lastName}`
-              : ""
-          }
+          placeholder={selectedBloc ? formatBlocName(selectedBloc) : "Bloc"}
+          value={selectedBloc ? formatBlocName(selectedBloc) : ""}
           readOnly
         />
         <FaAngleDown className="text-enamelled-jewel" />
@@ -49,18 +46,18 @@ const BlocSearch = () => {
           !dropdownVisible && "hidden"
         }`}
       >
-        {semesterFaculties && semesterFaculties.length > 0 ? (
-          semesterFaculties.map((faculty) => (
+        {semesterBlocs && semesterBlocs.length > 0 ? (
+          semesterBlocs.map((bloc) => (
             <p
-              key={faculty._id}
+              key={bloc._id}
               className="text-2xl text-enamelled-jewel h-8 hover:bg-placebo-turquoise cursor-pointer rounded-md px-2"
-              onMouseDown={() => handleBlocSelection(faculty)}
+              onMouseDown={() => handleBlocSelection(bloc)}
             >
-              {faculty.firstName} {faculty.lastName}
+              {formatBlocName(bloc)}
             </p>
           ))
         ) : (
-          <p>No faculty</p>
+          <p>No blocs</p>
         )}
       </div>
     </div>

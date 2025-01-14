@@ -27,6 +27,14 @@ const hasCommonDays = (days1, days2) => {
   return days1.some((day1) => days2.includes(day1));
 };
 
+// Helper function to format section based on course type
+const formatSection = (section, courseType, bloc) => {
+  if (courseType === "LAB") {
+    return `${section}-${bloc}L`;
+  }
+  return section;
+};
+
 // Main function to check for schedule conflicts
 const hasScheduleConflict = (currentSchedule, allSchedules) => {
   for (const otherSchedule of allSchedules) {
@@ -190,7 +198,10 @@ const FacultySchedList = ({ edit }) => {
                       {course.type}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {schedule.map(({ section }) => section)}
+                      {schedule.map(({ section }) => {
+                        const blocNumber = students[0]?.bloc || "1";
+                        return formatSection(section, course.type, blocNumber);
+                      })}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
                       {schedule.map(

@@ -44,6 +44,15 @@ const Export = () => {
       }
     })();
   }, []);
+  const formatSection = (section, courseType, bloc) => {
+    console.log(section, courseType, bloc);
+    if (courseType === "LAB") {
+      console.log(`${section}-${bloc}L`);
+      return `${section}-${bloc}L`;
+    }
+    console.log(section);
+    return section;
+  };
 
   // Function to export table data
   const handleExportClick = async (id) => {
@@ -73,7 +82,16 @@ const Export = () => {
         "Course Code": schedule.course.code || "N/A",
         "Course Description": schedule.course.name || "N/A",
         Class: schedule.course.type || "N/A",
-        Section: schedule.schedule[0]?.section || "N/A",
+        Section: schedule.schedule
+          .map(({ section }) => {
+            return formatSection(
+              section,
+              schedule.course.type,
+              schedule.schedule[0]?.bloc || "1"
+            );
+          })
+          .join(),
+
         Time: schedule.schedule
           .map(
             (time) => `${time.startTime || "N/A"} - ${time.endTime || "N/A"}`
