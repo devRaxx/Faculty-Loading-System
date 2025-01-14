@@ -18,7 +18,7 @@ import {
 import TestModal from "../../modals/testModal";
 import { PiCopy } from "react-icons/pi";
 
-const AlphaSchedList = ({ editing }) => {
+const AlphaSchedList = ({ editing, searchInput }) => {
   const {
     semesterSchedules,
     filteredSemesterSchedules,
@@ -75,6 +75,29 @@ const AlphaSchedList = ({ editing }) => {
     return days.map((day) => dayAbbreviations[day]).join("");
   };
 
+  const filteredSchedules = useMemo(() => {
+    if (!searchInput) return filteredSemesterSchedules;
+    return filteredSemesterSchedules.filter(
+      ({ course, faculty, room, schedule, section, remarks, students }) => {
+        const searchLower = searchInput.toLowerCase();
+        return (
+          // Course Code
+          course.code.toLowerCase().includes(searchLower) ||
+          // Course Description
+          course.name.toLowerCase().includes(searchLower) ||
+          // Students
+          students.some(({ name, bloc, yearLevel }) =>
+            `${yearLevel}${name}${bloc ? " - " + bloc : ""}`
+              .toLowerCase()
+              .includes(searchLower)
+          ) ||
+          // FIC (Faculty in Charge)
+          faculty.lastName.toLowerCase().includes(searchLower)
+        );
+      }
+    );
+  }, [filteredSemesterSchedules, searchInput]);
+
   return (
     <>
       <table className="w-full border-separate border-spacing-0">
@@ -127,9 +150,9 @@ const AlphaSchedList = ({ editing }) => {
           </tr>
         </thead>
         <tbody>
-          {filteredSemesterSchedules &&
-            filteredSemesterSchedules.length > 0 &&
-            filteredSemesterSchedules.map(
+          {filteredSchedules &&
+            filteredSchedules.length > 0 &&
+            filteredSchedules.map(
               ({
                 course,
                 faculty,

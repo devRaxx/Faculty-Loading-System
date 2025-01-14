@@ -47,10 +47,8 @@ const Export = () => {
   const formatSection = (section, courseType, bloc) => {
     console.log(section, courseType, bloc);
     if (courseType === "LAB") {
-      console.log(`${section}-${bloc}L`);
       return `${section}-${bloc}L`;
     }
-    console.log(section);
     return section;
   };
 

@@ -28,7 +28,6 @@ const TimeTable = () => {
 
   const formatSection = (section, courseType, bloc) => {
     if (courseType === "LAB") {
-      console.log(`${section}-${bloc}L`);
       return `${section}-${bloc}L`;
     }
     return section;
