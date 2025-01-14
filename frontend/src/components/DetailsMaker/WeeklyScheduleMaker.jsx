@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FaImages } from "react-icons/fa";
 import { FaXmark, FaAngleDown, FaEraser } from "react-icons/fa6";
 import {
   getStartTime,
@@ -40,33 +41,6 @@ const ScheduleMaker = ({ edit, weeklySchedule, setWeeklySchedule }) => {
     "5:30 PM",
   ];
 
-  const section = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-  ];
-
   const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
   // Helper function to get the display letter for a day
@@ -103,40 +77,76 @@ const ScheduleMaker = ({ edit, weeklySchedule, setWeeklySchedule }) => {
     });
   }, [Section, SectionStartTime, SectionEndTime, SectionDays]);
 
+  // Function to display the table
+  const [tableVisible, setTableVisible] = useState(false);
+  const displayTable = () => {
+    const scheduleData = [
+      ["Time", "TTH", "WF", "Monday"],
+      ["07:00-08:30", "A", "I", "Q"],
+      ["08:30-10:00", "B", "J", "R"],
+      ["10:00-11:30", "C", "K", "S"],
+      ["11:30-01:00", "D", "L", "T"],
+      ["01:00-02:30", "E", "M", "U"],
+      ["02:30-04:00", "F", "N", "V"],
+      ["04:00-05:30", "G", "O", "W"],
+      ["05:30-07:00", "H", "P", "X"],
+    ];
+
+    return (
+      <div className="absolute z-10 mt-[500px]">
+        <table className="table-auto border-collapse border border-gray-300 w-full text-center">
+          <thead className="bg-gray-200">
+            {scheduleData.slice(0, 1).map((row, index) => (
+              <tr key={`header-${index}`}>
+                {row.map((cell, cellIndex) => (
+                  <th
+                    key={`header-cell-${cellIndex}`}
+                    className="border border-gray-300 px-4 py-2 font-bold"
+                  >
+                    {cell}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {scheduleData.slice(1).map((row, rowIndex) => (
+              <tr
+                key={`row-${rowIndex}`}
+                className={rowIndex % 2 === 0 ? "bg-white" : "bg-gray-100"}
+              >
+                {row.map((cell, cellIndex) => (
+                  <td
+                    key={`cell-${rowIndex}-${cellIndex}`}
+                    className="border border-gray-300 px-4 py-2"
+                  >
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col space-y-1">
       <div className="relative inline-block">
         <div className="flex flex-row space-x-4">
-          {/* Section Selector */}
+          {/* Section Input */}
           <div className="relative inline-block">
             <input
               type="text"
               placeholder="Section"
-              className="outline-none border-2 border-black rounded-lg w-20 h-9 text-lg cursor-pointer text-center placeholder-black"
+              className="outline-none border-2 border-black rounded-lg w-20 h-9 text-lg text-center placeholder-black"
               value={Section}
-              onFocus={() => setSectionDropdownVisible(true)}
-              onBlur={() => setSectionDropdownVisible(false)}
-              readOnly
+              onChange={(e) => {
+                setSection(e.target.value);
+                setIsManualSection(true);
+              }}
             />
-
-            <div
-              className={`absolute flex flex-col h-40 overflow-scroll w-20 border-2 border-black rounded-lg z-10 ${
-                !SectionDropdownVisible ? "hidden" : ""
-              }`}
-            >
-              {section.map((letter) => (
-                <p
-                  key={letter}
-                  className="w-full text-center bg-white hover:bg-placebo-turquoise cursor-pointer"
-                  onMouseDown={() => {
-                    setSection(letter);
-                    setIsManualSection(true);
-                  }}
-                >
-                  {letter}
-                </p>
-              ))}
-            </div>
           </div>
 
           <div>
@@ -241,6 +251,8 @@ const ScheduleMaker = ({ edit, weeklySchedule, setWeeklySchedule }) => {
                   None
                 </button>
               </div>
+              <FaImages onClick={() => setTableVisible(!tableVisible)} />
+              {tableVisible && displayTable()}
             </div>
 
             <div className="flex flex-row w-full justify-start space-x-3">
