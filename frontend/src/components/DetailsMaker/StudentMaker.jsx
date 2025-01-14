@@ -62,7 +62,7 @@ const StudentMaker = ({
 
   const triggerDropdown = () => {
     console.log(courseType);
-    if (courseType.type == "LEC") {
+    if (courseType.type == "LEC" || courseType.type == "NA") {
       setDropdown(
         semesterDegreePrograms.filter(
           (degreePrograms) =>
@@ -131,7 +131,7 @@ const StudentMaker = ({
           className="outline-none border-2 h-9 text-lg pl-2 border-black rounded-lg placeholder-black"
           placeholder={
             courseType
-              ? courseType.type == "LEC"
+              ? courseType.type == "LEC" || courseType.type == "NA"
                 ? "Degree Program"
                 : "Bloc"
               : "Choose a Course First"

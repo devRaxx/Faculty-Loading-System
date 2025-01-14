@@ -41,12 +41,37 @@ const AlphaSchedList = ({ editing }) => {
     })();
   }, [queryParameters]);
 
-  const dayAbbreviations = {
-    Monday: "Mon",
-    Tuesday: "T",
-    Wednesday: "W",
-    Thursday: "Th",
-    Friday: "F",
+  // Helper function to format section based on course type
+  const formatSection = (section, courseType, bloc) => {
+    if (courseType === "LAB") {
+      return `${section}-${bloc}L`;
+    }
+    return section;
+  };
+
+  // Helper function to format days
+  const formatDays = (days) => {
+    if (!days) return "";
+
+    // Handle the special case for Tuesday-Thursday
+    if (
+      days.includes("Tuesday") &&
+      days.includes("Thursday") &&
+      days.length === 2
+    ) {
+      return "TTh";
+    }
+
+    // Map for other days
+    const dayAbbreviations = {
+      Monday: "M",
+      Tuesday: "T",
+      Wednesday: "W",
+      Thursday: "Th",
+      Friday: "F",
+    };
+
+    return days.map((day) => dayAbbreviations[day]).join("");
   };
 
   return (
@@ -101,7 +126,6 @@ const AlphaSchedList = ({ editing }) => {
           </tr>
         </thead>
         <tbody>
-          {console.log(filteredSemesterSchedules)}
           {filteredSemesterSchedules &&
             filteredSemesterSchedules.length > 0 &&
             filteredSemesterSchedules.map(
@@ -148,7 +172,8 @@ const AlphaSchedList = ({ editing }) => {
                     </td>
                     <td className="border border-collapse border-enamelled-jewel border-b-1 border-x-0 border-t-0">
                       {schedule.map(({ section }) => {
-                        return section;
+                        const blocNumber = students[0]?.bloc || "1";
+                        return formatSection(section, course.type, blocNumber);
                       })}
                     </td>
                     <td className="border border-collapse border-enamelled-jewel border-b-1 border-x-0 border-t-0">
@@ -165,9 +190,7 @@ const AlphaSchedList = ({ editing }) => {
                         return (
                           <p key={index}>
                             {Object.keys(time).length !== 0 &&
-                              time.day.map((e) => {
-                                return e;
-                              })}
+                              formatDays(time.day)}
                           </p>
                         );
                       })}
