@@ -27,10 +27,14 @@ const ScheduleMaker = ({ edit, weeklySchedule, setWeeklySchedule }) => {
   const startTimeSlots = [
     "7:00 AM",
     "8:30 AM",
+    "9:00 AM",
     "10:00 AM",
+    "11:00 AM",
     "11:30 AM",
+    "12:00 PM",
     "1:00 PM",
     "2:30 PM",
+    "3:00 PM",
     "4:00 PM",
     "5:30 PM",
   ];
@@ -67,6 +71,7 @@ const ScheduleMaker = ({ edit, weeklySchedule, setWeeklySchedule }) => {
   // Helper function to get the display letter for a day
   const getDayDisplayLetter = (day) => {
     if (day === "Thursday") return "Th";
+    else if (day === "NA") return "NA";
     return day.charAt(0);
   };
 
@@ -219,6 +224,21 @@ const ScheduleMaker = ({ edit, weeklySchedule, setWeeklySchedule }) => {
                     setIsManualSection(false);
                   }}
                 />
+              </div>
+              {/* None Button */}
+              <div className="pl-2">
+                <button
+                  className="bg-gray-200 border-2 border-black rounded-lg px-3 py-1 cursor-pointer hover:bg-gray-300"
+                  onMouseDown={() => {
+                    setSection("NA");
+                    setSectionDays(["NA"]);
+                    setSectionStartTime("0:00");
+                    setSectionEndTime("0:00");
+                    setIsManualSection(false);
+                  }}
+                >
+                  None
+                </button>
               </div>
             </div>
 

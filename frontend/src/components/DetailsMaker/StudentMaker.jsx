@@ -107,7 +107,7 @@ const StudentMaker = ({
 
   useEffect(() => {
     const studentFilter = (
-      courseType.type == "LEC"
+      courseType.type == "LEC" || courseType.type == "NA"
         ? semesterDegreePrograms
         : courseType.type == "LAB"
         ? semesterBlocs
@@ -205,7 +205,7 @@ const StudentMaker = ({
           courseType.type == "None" && "hidden"
         }`}
         onMouseDown={() => {
-          if (courseType.type == "LEC") {
+          if (courseType.type == "LEC" || courseType.type == "NA") {
             return degreeProgramOnOpen();
           } else if (courseType.type == "LAB") {
             return blocOnOpen();

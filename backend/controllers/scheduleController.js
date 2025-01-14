@@ -32,16 +32,15 @@ const getSchedule = async (req, res) => {
     if (schedule.faculty !== "None") {
       facultyData = await FACULTY.findById(schedule.faculty);
     }
+    console.log(courseData.type);
+    console.log(studentsData);
     if (schedule.students.length !== 0) {
       if (courseData.type === "LAB") {
         studentsData = await BLOC.find({ _id: { $in: schedule.students } });
-      } else if (courseData.type === "LEC") {
+      } else if (courseData.type === "LEC" || courseData.type === "NA") {
         studentsData = await DEGREE_PROGRAM.find({
           _id: { $in: schedule.students },
         });
-      } else if (courseData.type === "NA") {
-        // Allow input of 0
-        studentsData = await BLOC.find({ _id: { $in: schedule.students } });
       }
     }
 

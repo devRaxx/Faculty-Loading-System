@@ -55,6 +55,7 @@ const CourseMaker = ({
   const params = useParams();
   // Search Box Input
   const [courseSearch, setCourseSearch] = useState("");
+  const [placeholder, setPlaceholder] = useState("Course Code");
 
   const {
     isOpen: isWarningModalOpen,
@@ -96,7 +97,7 @@ const CourseMaker = ({
               setCourseType({ type: courseType, status: "Unchanged" }),
               setCourseSearch(e.target.value)
             )}
-            placeholder="Course Code"
+            placeholder={placeholder}
             type="text"
             value={courseSearch}
           />
@@ -130,6 +131,7 @@ const CourseMaker = ({
                           status:
                             courseType == course.type ? "Unchanged" : "Changed",
                         });
+                        setPlaceholder(course.code);
                       }
                     }}
                   >

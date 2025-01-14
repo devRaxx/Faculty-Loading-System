@@ -69,6 +69,7 @@ const AlphaSchedList = ({ editing }) => {
       Wednesday: "W",
       Thursday: "Th",
       Friday: "F",
+      NA: "NA",
     };
 
     return days.map((day) => dayAbbreviations[day]).join("");
