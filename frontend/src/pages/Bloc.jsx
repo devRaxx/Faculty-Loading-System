@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import BlocFilterBar from "../components/Filters/BlocFilterBar";
-import TimeTable from "../components/Tables/TimeTable";
+import BlocTable from "../components/Tables/BlocTable";
 import BlocSchedList from "../components/Tables/BlocSchedList";
-import BlocDetails from "../components/Tables/BlocDetails";
 import BlocSearch from "../components/Filters/BlocSearch";
 
 const Bloc = () => {
@@ -26,21 +25,8 @@ const Bloc = () => {
 
   return (
     <div className="flex flex-col w-full px-48 space-y-5 justify-center items-center mt-10">
-      {/* {
-                semScheds.length > 0 ? (
-                    semScheds.map((sched)=>{
-                        <div>
-                            {sched}
-                        </div>
-                    })
-                ):(
-                    <div>
-                        THIS IS EMPTY
-                    </div>
-                )
-            } */}
       <div className="flex flex-row w-full justify-evenly">
-        <TimeTable />
+        <BlocTable />
         <div className="flex flex-col space-y-5">
           <BlocFilterBar />
           <BlocSearch />

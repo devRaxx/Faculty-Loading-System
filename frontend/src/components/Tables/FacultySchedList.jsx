@@ -35,6 +35,24 @@ const formatSection = (section, courseType, bloc) => {
   return section;
 };
 
+// Helper function to convert day names to abbreviations
+const convertDayToAbbreviation = (day) => {
+  switch (day) {
+    case "Monday":
+      return "M";
+    case "Tuesday":
+      return "T";
+    case "Wednesday":
+      return "W";
+    case "Thursday":
+      return "Th";
+    case "Friday":
+      return "F";
+    default:
+      return day;
+  }
+};
+
 // Main function to check for schedule conflicts
 const hasScheduleConflict = (currentSchedule, allSchedules) => {
   for (const otherSchedule of allSchedules) {
@@ -215,7 +233,9 @@ const FacultySchedList = ({ edit }) => {
                       {schedule.map((time, index) => (
                         <p key={index}>
                           {Object.keys(time).length !== 0 &&
-                            time.day.map((e) => e)}
+                            time.day
+                              .map((day) => convertDayToAbbreviation(day))
+                              .join("")}
                         </p>
                       ))}
                     </td>

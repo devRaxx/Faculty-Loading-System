@@ -61,22 +61,33 @@ const TimeTable = () => {
       "6:30 PM - 7:00 PM",
     ];
 
+    // Find the middle time slot for a given schedule
+    const findMiddleTimeSlot = (schedule, allTimeSlots) => {
+      const start = new Date(`January 1, 2000 ${schedule.start}`);
+      const end = new Date(`January 1, 2000 ${schedule.end}`);
+
+      const matchingSlots = allTimeSlots.filter((slot) => {
+        const timeArray = slot.split(" - ");
+        const slotStart = new Date(`January 1, 2000 ${timeArray[0]}`);
+        const slotEnd = new Date(`January 1, 2000 ${timeArray[1]}`);
+        return slotStart >= start && slotEnd <= end;
+      });
+
+      const middleIndex = Math.floor(matchingSlots.length / 2);
+      return matchingSlots[middleIndex];
+    };
+
     return timeSlots.map((timeSlot, index) => (
       <tr key={index}>
         <td className="border border-enamelled-jewel w-1/8 text-enamelled-jewel text-center">
           {timeSlot.replace(" AM", "").replace(" PM", "")}
         </td>
-        {daysOfWeek.map((day, dayIndex) => (
-          <td
-            key={dayIndex}
-            className={`w-7/8 ${
-              semScheds[day] &&
-              semScheds[day].some((schedule) => {
+        {daysOfWeek.map((day, dayIndex) => {
+          const matchingSchedules = semScheds[day]
+            ? semScheds[day].filter((schedule) => {
                 const startTime = schedule.start;
                 const endTime = schedule.end;
-                const timeString = timeSlot;
-                const timeArray = timeString.split(" - ");
-
+                const timeArray = timeSlot.split(" - ");
                 const timeSlotStart = new Date(
                   `January 1, 2000 ${timeArray[0]}`
                 );
@@ -85,112 +96,155 @@ const TimeTable = () => {
                 const end = new Date(`January 1, 2000 ${endTime}`);
                 return timeSlotStart >= start && timeSlotEnd <= end;
               })
-                ? ""
-                : "border border-enamelled-jewel text-enamelled-jewel text-center"
-            } ${getShadeClass(day, timeSlot, dayIndex)}`}
-          >
-            {semScheds[day] &&
-              (function () {
-                const matchingSchedules = semScheds[day].filter((schedule) => {
-                  const startTime = schedule.start;
-                  const endTime = schedule.end;
-                  const timeString = timeSlot;
-                  const timeArray = timeString.split(" - ");
+            : [];
 
-                  const timeSlotStart = new Date(
-                    `January 1, 2000 ${timeArray[0]}`
-                  );
-                  const timeSlotEnd = new Date(
-                    `January 1, 2000 ${timeArray[1]}`
-                  );
-                  const start = new Date(`January 1, 2000 ${startTime}`);
-                  const end = new Date(`January 1, 2000 ${endTime}`);
-                  return timeSlotStart >= start && timeSlotEnd <= end;
-                });
+          const hasConflict = matchingSchedules.length > 1;
 
-                return matchingSchedules.map((schedule, index, self) => (
-                  <div key={index}>
-                    {(() => {
-                      if (self.length > 1 && index === 0) {
-                        return (
-                          <p className="flex flex-row items-center justify-center text-white text-center font-regular">
-                            CONFLICT <MdErrorOutline />
-                          </p>
+          // Group identical schedules by start-end time
+          const scheduleGroups = {};
+          matchingSchedules.forEach((schedule) => {
+            const key = `${schedule.start}-${schedule.end}`;
+            if (!scheduleGroups[key]) {
+              scheduleGroups[key] = [];
+            }
+            scheduleGroups[key].push(schedule);
+          });
+
+          const hasIdenticalConflicts = Object.values(scheduleGroups).some(
+            (group) => group.length > 1
+          );
+
+          return (
+            <td
+              key={dayIndex}
+              className={`w-7/8 ${
+                matchingSchedules.length > 0
+                  ? ""
+                  : "border border-enamelled-jewel text-enamelled-jewel text-center"
+              } ${getShadeClass(day, timeSlot, index)}`}
+            >
+              {matchingSchedules.length > 0 && (
+                <>
+                  {/* Show conflict message for identical conflicts only in middle time slot */}
+                  {hasIdenticalConflicts &&
+                    Object.values(scheduleGroups).map((group, groupIndex) => {
+                      if (group.length > 1) {
+                        const middleTimeSlot = findMiddleTimeSlot(
+                          group[0],
+                          timeSlots
                         );
-                      } else if (
-                        !schedule.subjectRendered &&
-                        self.length === 1
-                      ) {
+                        if (timeSlot === middleTimeSlot) {
+                          return (
+                            <div key={`conflict-${groupIndex}`}>
+                              <p className="flex flex-row items-center justify-center text-white text-center font-regular">
+                                CONFLICT <MdErrorOutline />
+                              </p>
+                            </div>
+                          );
+                        }
+                      }
+                      return null;
+                    })}
+
+                  {/* Show conflict message for non-identical conflicts */}
+                  {hasConflict && !hasIdenticalConflicts && index === 0 && (
+                    <div>
+                      <p className="flex flex-row items-center justify-center text-white text-center font-regular">
+                        CONFLICT <MdErrorOutline />
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Show schedule information */}
+                  {matchingSchedules.map((schedule, scheduleIndex) => {
+                    // Check if this schedule is part of an identical conflict group
+                    const isInIdenticalConflictGroup = Object.values(
+                      scheduleGroups
+                    ).some(
+                      (group) => group.length > 1 && group.includes(schedule)
+                    );
+
+                    // Only show subject/section for non-conflict or non-identical conflict schedules
+                    if (!hasConflict || !isInIdenticalConflictGroup) {
+                      if (!schedule.subjectRendered && scheduleIndex === 0) {
                         schedule.subjectRendered = true;
                         return (
-                          <p className="text-enamelled-jewel text-center font-extrabold">
-                            {schedule.subject}
-                          </p>
+                          <div key={`subject-${scheduleIndex}`}>
+                            <p className="text-enamelled-jewel text-center font-extrabold">
+                              {schedule.subject}
+                            </p>
+                          </div>
                         );
                       } else if (
                         !schedule.sectionRendered &&
-                        self.length === 1
+                        scheduleIndex === 0
                       ) {
                         schedule.sectionRendered = true;
                         return (
-                          <p className="text-enamelled-jewel text-center font-extrabold">
-                            {formatSection(
-                              schedule.section,
-                              schedule.courseType,
-                              schedule.bloc
-                            )}
-                          </p>
+                          <div key={`section-${scheduleIndex}`}>
+                            <p className="text-enamelled-jewel text-center font-extrabold">
+                              {formatSection(
+                                schedule.section,
+                                schedule.courseType,
+                                schedule.bloc
+                              )}
+                            </p>
+                          </div>
                         );
                       }
-                      return null;
-                    })()}
-                  </div>
-                ));
-              })()}
-          </td>
-        ))}
+                    }
+                    return null;
+                  })}
+                </>
+              )}
+            </td>
+          );
+        })}
       </tr>
     ));
   };
 
-  const getShadeClass = (day, timeSlot) => {
-    const conflictingSchedules =
-      semScheds[day] &&
-      semScheds[day].filter((schedule) => {
-        const startTime = schedule.start;
-        const endTime = schedule.end;
-        const timeString = timeSlot;
-        const timeArray = timeString.split(" - ");
+  const getShadeClass = (day, timeSlot, rowIndex) => {
+    if (!semScheds[day]) return "bg-white";
 
-        const timeSlotStart = new Date(`January 1, 2000 ${timeArray[0]}`);
-        const timeSlotEnd = new Date(`January 1, 2000 ${timeArray[1]}`);
-        const start = new Date(`January 1, 2000 ${startTime}`);
-        const end = new Date(`January 1, 2000 ${endTime}`);
-        return timeSlotStart >= start && timeSlotEnd <= end;
+    const matchingSchedules = semScheds[day].filter((schedule) => {
+      const startTime = schedule.start;
+      const endTime = schedule.end;
+      const timeArray = timeSlot.split(" - ");
+      const timeSlotStart = new Date(`January 1, 2000 ${timeArray[0]}`);
+      const timeSlotEnd = new Date(`January 1, 2000 ${timeArray[1]}`);
+      const start = new Date(`January 1, 2000 ${startTime}`);
+      const end = new Date(`January 1, 2000 ${endTime}`);
+      return timeSlotStart >= start && timeSlotEnd <= end;
+    });
+
+    // Determine if this is the first row of a schedule
+    const isFirstRowOfSchedule = () => {
+      const timeArray = timeSlot.split(" - ");
+      const currentSlotStart = new Date(`January 1, 2000 ${timeArray[0]}`);
+
+      return semScheds[day].some((schedule) => {
+        const scheduleStart = new Date(`January 1, 2000 ${schedule.start}`);
+        return currentSlotStart.getTime() === scheduleStart.getTime();
       });
+    };
 
-    const hasConflicts =
-      conflictingSchedules && conflictingSchedules.length > 1;
+    if (matchingSchedules.length === 0) return "bg-white";
 
-    return semScheds[day] &&
-      semScheds[day].some((schedule) => {
-        const startTime = schedule.start;
-        const endTime = schedule.end;
-        const timeString = timeSlot;
-        const timeArray = timeString.split(" - ");
+    const hasConflicts = matchingSchedules.length > 1;
+    const isFirstRow = isFirstRowOfSchedule();
 
-        const timeSlotStart = new Date(`January 1, 2000 ${timeArray[0]}`);
-        const timeSlotEnd = new Date(`January 1, 2000 ${timeArray[1]}`);
-        const start = new Date(`January 1, 2000 ${startTime}`);
-        const end = new Date(`January 1, 2000 ${endTime}`);
-        return timeSlotStart >= start && timeSlotEnd <= end;
-      })
-      ? hasConflicts
-        ? "bg-pastel-red border-r border-black"
-        : conflictingSchedules && conflictingSchedules.length % 2 === 0
-        ? "bg-veiling-waterfalls"
-        : "bg-placebo-turquoise"
-      : "bg-white";
+    if (hasConflicts) {
+      return `bg-pastel-red ${
+        isFirstRow ? "border-t" : ""
+      } border-r border-black`;
+    } else {
+      return `${
+        matchingSchedules.length % 2 === 0
+          ? "bg-veiling-waterfalls"
+          : "bg-placebo-turquoise"
+      } ${isFirstRow ? "border-t" : ""} border-r border-black`;
+    }
   };
 
   return (
