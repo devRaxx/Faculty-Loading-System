@@ -217,7 +217,7 @@ const getSemesterInformation = async (req, res) => {
 const deleteSemester = async (req, res) => {
   const { id } = req.body;
   await SEMESTER.deleteMany({ _id: id });
-  res.status(200).send("Sem Deleted");
+  res.status(200).send({ message: "Sem Deleted" });
 };
 
 module.exports = {

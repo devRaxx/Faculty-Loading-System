@@ -18,6 +18,7 @@ import {
   ModalBody,
   ModalCloseButton,
 } from "@chakra-ui/react";
+
 const Home = () => {
   const navigate = useNavigate();
   const [semData, setSemData] = useState(null);
@@ -35,16 +36,24 @@ const Home = () => {
       id: semId,
     };
     (async function () {
-      const res = await fetch("http://localhost:4000/api/semester", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      console.log(data);
+      try {
+        const res = await fetch("http://localhost:4000/api/semester", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        console.log(data);
+
+        // Update UI by removing deleted semester
+        setSemData((prevData) => prevData.filter((sem) => sem._id !== semId));
+      } catch (err) {
+        console.error("Error deleting semester:", err);
+      }
     })();
   };
 
@@ -77,8 +86,10 @@ const Home = () => {
       });
       const data = await res.json();
       setSemData([...semData, data]);
+      onClose(); // close modal after adding
     })();
   };
+
   useEffect(() => {
     (async function () {
       try {
@@ -219,12 +230,7 @@ const Home = () => {
                     {sem.dateModified}
                   </td>
                   {editing && (
-                    <td
-                      onMouseDown={(e) => {
-                        e.stopPropagation();
-                        console.log("asdfsf");
-                      }}
-                    >
+                    <td onMouseDown={(e) => e.stopPropagation()}>
                       <button onClick={() => handleDeleteClick(sem._id)}>
                         <IoTrashOutline />
                       </button>
@@ -262,24 +268,6 @@ const Home = () => {
           </h1>
           <ModalCloseButton
             size="sm"
-            style={{
-              ...commonModalButtonStyle,
-              marginRight: "30px",
-              pointerEvents: "none",
-              color: "#035C65",
-            }}
-          />
-          <ModalCloseButton
-            size="sm"
-            style={{
-              ...commonModalButtonStyle,
-              marginRight: "60px",
-              pointerEvents: "none",
-              color: "#035C65",
-            }}
-          />
-          <ModalCloseButton
-            size="sm"
             style={{ ...commonModalButtonStyle, color: "white" }}
           />
           <ModalBody>
@@ -298,7 +286,7 @@ const Home = () => {
                 />
               </div>
               <div className="mx-5 text-enamelled-jewel font-semibold border w-2 border-black"></div>
-              <div className="bg-blue">
+              <div>
                 <input
                   className="w-20 h-10 text-2xl border border-black rounded-md p-1 text-center"
                   onChange={(e) => setSecondYear(e.target.value)}
@@ -307,12 +295,12 @@ const Home = () => {
                 />
               </div>
             </div>
-            <div className="flex flex-row items-center mb-">
+            <div className="flex flex-row items-center">
               <h1 className="text-3xl font-semibold mr-16">Semester: </h1>
               <button
                 onClick={() => setSemester("1st")}
                 className={`mr-6 ${
-                  semester == "1st" ? "bg-placebo-turquoise shadow-custom" : ""
+                  semester === "1st" ? "bg-placebo-turquoise shadow-custom" : ""
                 } border w-16 h-10 text-2xl border-black rounded-md`}
               >
                 1st
@@ -320,7 +308,7 @@ const Home = () => {
               <button
                 onClick={() => setSemester("2nd")}
                 className={`mr-6 ${
-                  semester == "2nd" ? "bg-placebo-turquoise shadow-custom" : ""
+                  semester === "2nd" ? "bg-placebo-turquoise shadow-custom" : ""
                 } border w-16 h-10 text-2xl border-black rounded-md`}
               >
                 2nd
@@ -328,7 +316,7 @@ const Home = () => {
               <button
                 onClick={() => setSemester("Mid Year")}
                 className={`mr-6 ${
-                  semester == "Mid Year"
+                  semester === "Mid Year"
                     ? "bg-placebo-turquoise shadow-custom"
                     : ""
                 } border w-32 h-10 text-2xl border-black rounded-md`}
@@ -340,10 +328,7 @@ const Home = () => {
           <ModalFooter justifyContent={"center"} alignItems={"center"}>
             <div className="flex flex-row space-x-4 mt-6">
               <button
-                onClick={() => {
-                  handleSubmit(firstYear, secondYear, semester);
-                  onClose;
-                }}
+                onClick={() => handleSubmit(firstYear, secondYear, semester)}
                 className="w-20 h-10 text-enamelled-jewel font-semibold border border-enamelled-jewel transition ease-in duration-200 hover:shadow-custom hover:bg-placebo-turquoise"
               >
                 Add
