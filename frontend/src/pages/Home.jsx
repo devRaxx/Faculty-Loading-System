@@ -7,6 +7,8 @@ import { HiPlus } from "react-icons/hi";
 import { useDisclosure } from "@chakra-ui/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { IoTrashOutline } from "react-icons/io5";
+import { FaRegCopy } from "react-icons/fa6";
+
 import {
   Modal,
   ModalOverlay,
@@ -229,7 +231,10 @@ const Home = () => {
                     </td>
                   )}
                   {urlParams.get("copy") && (
-                    <td className="text-black font-bold text-2xl p-2">COPY</td>
+                    <td className="flex items-center text-black font-bold text-xl p-2">
+                      <FaRegCopy />
+                      COPY
+                    </td>
                   )}
                 </tr>
               ))
