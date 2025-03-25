@@ -9,9 +9,7 @@ const BlocSearch = () => {
   const { semesterBlocs, dispatch } = useSemesterContext();
 
   // Debugging: Log available blocs
-  useEffect(() => {
-    console.log("Available Blocs:", semesterBlocs);
-  }, [semesterBlocs]);
+  useEffect(() => {}, [semesterBlocs]);
 
   // Function to format bloc name safely
   const formatBlocName = (bloc) => {

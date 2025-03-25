@@ -41,11 +41,6 @@ const AddScheduleModal = ({ onClose, isOpen }) => {
     status: "None",
   });
 
-  console.log(course);
-  console.log(room);
-  console.log(faculty);
-  console.log(students);
-
   const commonModalButtonStyle = {
     borderRadius: "50%",
     background: "#035C65",

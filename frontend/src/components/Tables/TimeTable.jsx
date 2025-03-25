@@ -22,7 +22,6 @@ const TimeTable = () => {
       acc[day].push(rest);
       return acc;
     }, {});
-    console.log("formatted data", formattedData);
     setSemScheds(formattedData);
   }, [params.id, selectedFaculty]);
 

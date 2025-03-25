@@ -3,7 +3,6 @@ import ScheduleMaker from "./WeeklyScheduleMaker";
 import { useState } from "react";
 
 const SectionMaker = ({ mainWeeklySchedule, setMainWeeklySchedule }) => {
-  console.log(mainWeeklySchedule);
   const [sectionComponents, setSectionComponents] = useState([
     <ScheduleMaker
       key={1}
