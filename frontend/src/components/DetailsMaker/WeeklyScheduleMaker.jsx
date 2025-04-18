@@ -41,11 +41,19 @@ const ScheduleMaker = ({ edit, weeklySchedule, setWeeklySchedule }) => {
     "5:30 PM",
   ];
 
-  const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const weekDays = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
 
   // Helper function to get the display letter for a day
   const getDayDisplayLetter = (day) => {
     if (day === "Thursday") return "Th";
+    else if (day === "Saturday") return "S";
     else if (day === "NA") return "NA";
     return day.charAt(0);
   };

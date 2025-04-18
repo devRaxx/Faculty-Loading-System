@@ -1,21 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { IoTrashOutline } from "react-icons/io5";
-import AddScheduleModal from "../../modals/AddScheduleModal";
 import { useDisclosure } from "@chakra-ui/react";
 import EditScheduleModal from "../../modals/EditScheduleModal";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useSemesterContext } from "../../hooks/useSemesterContext";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  Button,
-  ModalCloseButton,
-} from "@chakra-ui/react";
-import TestModal from "../../modals/testModal";
 import { PiCopy } from "react-icons/pi";
 
 const AlphaSchedList = ({ editing, searchInput }) => {
@@ -71,6 +59,7 @@ const AlphaSchedList = ({ editing, searchInput }) => {
       Wednesday: "W",
       Thursday: "Th",
       Friday: "F",
+      Saturday: "S",
       NA: "NA",
     };
 
