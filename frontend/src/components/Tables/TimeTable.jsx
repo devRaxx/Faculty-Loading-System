@@ -8,7 +8,14 @@ const TimeTable = () => {
   const { selectedFaculty, selectedFacultySchedules } = useSemesterContext();
   const [semScheds, setSemScheds] = useState({});
   const params = useParams();
-  const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const daysOfWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
 
   useEffect(() => {
     const formattedData = convertToFacultyTimeTableData(
@@ -263,7 +270,7 @@ const TimeTable = () => {
             {daysOfWeek.map((day, index) => (
               <th
                 key={index}
-                className="border-b-2 border-enamelled-jewel text-enamelled-jewel text-xl font-extrabold"
+                className="border-b-2 border-enamelled-jewel text-enamelled-jewel text-lg font-extrabold"
               >
                 {day}
               </th>
