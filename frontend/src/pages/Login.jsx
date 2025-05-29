@@ -22,15 +22,12 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(
-        "https://faculty-loading-system.vercel.app/api/auth/login",
-        {
-          method: "POST",
-          body: JSON.stringify({ userName: username, password: password }),
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-        }
-      );
+      const res = await fetch("http://localhost:4000/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ userName: username, password: password }),
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
       const data = await res.json();
       if (data.errors) {
         setErrors(data.errors);
@@ -52,13 +49,10 @@ const Login = () => {
   useEffect(() => {
     (async function () {
       try {
-        const res = await fetch(
-          "https://faculty-loading-system.vercel.app/api/auth/user",
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
+        const res = await fetch("http://localhost:4000/api/auth/user", {
+          method: "GET",
+          credentials: "include",
+        });
         const user = await res.json();
         if (user.userType == "Super User" || user.userType == "User") {
           navigate("/home");

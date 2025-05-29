@@ -43,13 +43,10 @@ export const AdminContextProvider = ({ children }) => {
   const params = useParams();
   useEffect(() => {
     (async function () {
-      const res = await fetch(
-        "https://faculty-loading-system.vercel.app/api/admin",
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
+      const res = await fetch("http://localhost:4000/api/admin", {
+        method: "GET",
+        credentials: "include",
+      });
       const data = await res.json();
       dispatch({ type: "SET_USERS", payload: data });
     })();

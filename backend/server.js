@@ -33,9 +33,10 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
+app.use("/", (req, res, next) => {
   console.log(req.path, req.method);
-  next();
+  res.send("Hello World!");
+  // next();
 });
 
 // routes

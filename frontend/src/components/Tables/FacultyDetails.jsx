@@ -164,7 +164,7 @@ const FacultyDetails = () => {
                     className="w-20 h-10 bg-placebo-turquoise border-2 border-enamelled-jewel"
                     onClick={async () => {
                       const res = await fetch(
-                        `https://faculty-loading-system.vercel.app/api/faculty/${params.id}`,
+                        `http://localhost:4000/api/faculty/${params.id}`,
                         {
                           method: "PATCH",
                           credentials: "include",
