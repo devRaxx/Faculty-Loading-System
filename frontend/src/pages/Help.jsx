@@ -151,7 +151,7 @@ const Help = () => {
           className="bg-red-900"
           onClick={async () => {
             const res = await fetch(
-              "http://localhost:4000/api/bloc/6785bacb9b3059c206f7f71c",
+              "https://faculty-loading-system.vercel.app/api/bloc/6785bacb9b3059c206f7f71c",
               {
                 method: "GET",
                 credentials: "include",

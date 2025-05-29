@@ -17,10 +17,13 @@ const Export = () => {
   useEffect(() => {
     (async function () {
       try {
-        const res = await fetch("http://localhost:4000/api/auth/user", {
-          method: "GET",
-          credentials: "include",
-        });
+        const res = await fetch(
+          "https://faculty-loading-system.vercel.app/api/auth/user",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
         const user = await res.json();
         setUserData(user);
       } catch (error) {
@@ -33,10 +36,13 @@ const Export = () => {
   useEffect(() => {
     (async function () {
       try {
-        const res = await fetch("http://localhost:4000/api/semester", {
-          method: "GET",
-          credentials: "include",
-        });
+        const res = await fetch(
+          "https://faculty-loading-system.vercel.app/api/semester",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
         const data = await res.json();
         setSemData(data);
       } catch (err) {
@@ -55,10 +61,13 @@ const Export = () => {
   // Function to export table data
   const handleExportClick = async (id) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/semester/${id}/`, {
-        method: "GET",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `https://faculty-loading-system.vercel.app/api/semester/${id}/`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
       const { schedules } = await res.json();
 
       // Prepare data for export

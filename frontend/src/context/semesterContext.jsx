@@ -197,7 +197,7 @@ export const SemesterContextProvider = ({ children }) => {
         dispatch({ type: "START_LOADING" });
 
         const res = await fetch(
-          `http://localhost:4000/api/semester/${params.id}/`,
+          `https://faculty-loading-system.vercel.app/api/semester/${params.id}/`,
           {
             method: "GET",
             credentials: "include",

@@ -192,7 +192,7 @@ const AddScheduleModal = ({ onClose, isOpen }) => {
               className="w-20 h-10 border border-enamelled-jewel text-enamelled-jewel font-semibold transition ease-in duration-200 hover:shadow-custom hover:bg-placebo-turquoise"
               onClick={async () => {
                 const res = await fetch(
-                  `http://localhost:4000/api/schedule/${params.id}`,
+                  `https://faculty-loading-system.vercel.app/api/schedule/${params.id}`,
                   {
                     method: "POST",
                     credentials: "include",
