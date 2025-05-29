@@ -5,24 +5,23 @@ import { useSemesterContext } from "../../hooks/useSemesterContext";
 import { convertToFacultyTimeTableData } from "../../utils/convertDataforTImeTable";
 
 const TimeTable = () => {
-  const {selectedFaculty, selectedFacultySchedules} = useSemesterContext()
+  const { selectedFaculty, selectedFacultySchedules } = useSemesterContext();
   const [semScheds, setSemScheds] = useState({});
   const params = useParams();
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-  // Sample data for demonstration
-  const sampleData = [
-    { day: 'Monday', subject: "CMSC 178", section: "1-DL", start: "7:00 AM", end: "8:30 AM", subjectRendered: false, sectionRendered: false },
-    { day: 'Tuesday', subject: "CMSC 195", section: "M", start: "5:30 PM", end: "7:00 PM", subjectRendered: false, sectionRendered: false },
-    { day: 'Tuesday', subject: "CMSC 195", section: "M", start: "10:00 AM", end: "1:00 PM", subjectRendered: false, sectionRendered: false },
-    { day: 'Tuesday', subject: "CMSC 195", section: "M", start: "11:30 AM", end: "1:00 PM", subjectRendered: false, sectionRendered: false },
-    { day: 'Wednesday', subject: "MATH 10", section: "A", start: "12:00 PM", end: "1:30 PM", subjectRendered: false, sectionRendered: false },
-    { day: 'Thursday', subject: "MATH 28", section: "A", start: "10:00 AM", end: "11:30 AM", subjectRendered: false, sectionRendered: false },
-    { day: 'Friday', subject: "CMSC 185", section: "2-BL", start: "2:00 PM", end: "3:30 PM", subjectRendered: false, sectionRendered: false },
+  const daysOfWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
   ];
 
   useEffect(() => {
-    // Convert sample data to a dictionary format for easier manipulation
-    const formattedData = convertToFacultyTimeTableData(selectedFacultySchedules, selectedFaculty?._id).reduce((acc, entry) => {
+    const formattedData = convertToFacultyTimeTableData(
+      selectedFacultySchedules,
+      selectedFaculty?._id
+    ).reduce((acc, entry) => {
       const { day, ...rest } = entry;
       if (!acc[day]) {
         acc[day] = [];
@@ -30,122 +29,229 @@ const TimeTable = () => {
       acc[day].push(rest);
       return acc;
     }, {});
-    console.log("formatted data", formattedData)
     setSemScheds(formattedData);
   }, [params.id, selectedFaculty]);
 
-  // Function to generate schedule rows based on the data
+  const formatSection = (section, courseType, bloc) => {
+    if (courseType === "LAB") {
+      return `${section}-${bloc}L`;
+    }
+    return section;
+  };
+
   const generateScheduleRows = () => {
     const timeSlots = [
-      "7:00 AM - 7:30 AM", "7:30 AM - 8:00 AM", "8:00 AM - 8:30 AM", "8:30 AM - 9:00 AM", "9:00 AM - 9:30 AM",
-      "9:30 AM - 10:00 AM", "10:00 AM - 10:30 AM", "10:30 AM - 11:00 AM", "11:00 AM - 11:30 AM", "11:30 AM - 12:00 PM",
-      "12:00 PM - 12:30 PM", "12:30 PM - 1:00 PM", "1:00 PM - 1:30 PM", "1:30 PM - 2:00 PM", "2:00 PM - 2:30 PM",
-      "2:30 PM - 3:00 PM", "3:00 PM - 3:30 PM", "3:30 PM - 4:00 PM", "4:00 PM - 4:30 PM", "4:30 PM - 5:00 PM",
-      "5:00 PM - 5:30 PM", "5:30 PM - 6:00 PM", "6:00 PM - 6:30 PM", "6:30 PM - 7:00 PM"
+      "7:00 AM - 7:30 AM",
+      "7:30 AM - 8:00 AM",
+      "8:00 AM - 8:30 AM",
+      "8:30 AM - 9:00 AM",
+      "9:00 AM - 9:30 AM",
+      "9:30 AM - 10:00 AM",
+      "10:00 AM - 10:30 AM",
+      "10:30 AM - 11:00 AM",
+      "11:00 AM - 11:30 AM",
+      "11:30 AM - 12:00 PM",
+      "12:00 PM - 12:30 PM",
+      "12:30 PM - 1:00 PM",
+      "1:00 PM - 1:30 PM",
+      "1:30 PM - 2:00 PM",
+      "2:00 PM - 2:30 PM",
+      "2:30 PM - 3:00 PM",
+      "3:00 PM - 3:30 PM",
+      "3:30 PM - 4:00 PM",
+      "4:00 PM - 4:30 PM",
+      "4:30 PM - 5:00 PM",
+      "5:00 PM - 5:30 PM",
+      "5:30 PM - 6:00 PM",
+      "6:00 PM - 6:30 PM",
+      "6:30 PM - 7:00 PM",
     ];
+
+    // Find the middle time slot for a given schedule
+    const findMiddleTimeSlot = (schedule, allTimeSlots) => {
+      const start = new Date(`January 1, 2000 ${schedule.start}`);
+      const end = new Date(`January 1, 2000 ${schedule.end}`);
+
+      const matchingSlots = allTimeSlots.filter((slot) => {
+        const timeArray = slot.split(" - ");
+        const slotStart = new Date(`January 1, 2000 ${timeArray[0]}`);
+        const slotEnd = new Date(`January 1, 2000 ${timeArray[1]}`);
+        return slotStart >= start && slotEnd <= end;
+      });
+
+      const middleIndex = Math.floor(matchingSlots.length / 2);
+      return matchingSlots[middleIndex];
+    };
 
     return timeSlots.map((timeSlot, index) => (
       <tr key={index}>
-        <td className="border border-enamelled-jewel w-1/8 text-enamelled-jewel text-center">{timeSlot.replace(" AM", "").replace(" PM", "")}</td>
-        {daysOfWeek.map((day, dayIndex) => (
-          <td
-            key={dayIndex}
-            className={`w-7/8 ${semScheds[day] &&
-              semScheds[day].some(schedule => {
+        <td className="border border-enamelled-jewel w-1/8 text-enamelled-jewel text-center">
+          {timeSlot.replace(" AM", "").replace(" PM", "")}
+        </td>
+        {daysOfWeek.map((day, dayIndex) => {
+          const matchingSchedules = semScheds[day]
+            ? semScheds[day].filter((schedule) => {
                 const startTime = schedule.start;
                 const endTime = schedule.end;
-                const timeString = timeSlot;
-                const timeArray = timeString.split(" - ");
-
-                const timeSlotStart = new Date(`January 1, 2000 ${timeArray[0]}`);
+                const timeArray = timeSlot.split(" - ");
+                const timeSlotStart = new Date(
+                  `January 1, 2000 ${timeArray[0]}`
+                );
                 const timeSlotEnd = new Date(`January 1, 2000 ${timeArray[1]}`);
                 const start = new Date(`January 1, 2000 ${startTime}`);
                 const end = new Date(`January 1, 2000 ${endTime}`);
-                // Check if timeSlot falls within the range of start and end times
                 return timeSlotStart >= start && timeSlotEnd <= end;
               })
-              ? '' // No border when cell is not empty
-              : 'border border-enamelled-jewel text-enamelled-jewel text-center' // Apply border when cell is empty
-              } ${getShadeClass(day, timeSlot, dayIndex)}`}
-          >
-            {semScheds[day] &&
-              (function () {
-                const matchingSchedules = semScheds[day].filter(schedule => {
-                  const startTime = schedule.start;
-                  const endTime = schedule.end;
-                  const timeString = timeSlot;
-                  const timeArray = timeString.split(" - ");
+            : [];
 
-                  const timeSlotStart = new Date(`January 1, 2000 ${timeArray[0]}`);
-                  const timeSlotEnd = new Date(`January 1, 2000 ${timeArray[1]}`);
-                  const start = new Date(`January 1, 2000 ${startTime}`);
-                  const end = new Date(`January 1, 2000 ${endTime}`);
-                  // Check if timeSlot falls within the range of start and end times
-                  return timeSlotStart >= start && timeSlotEnd <= end;
-                });
+          const hasConflict = matchingSchedules.length > 1;
 
-                return matchingSchedules.map((schedule, index, self) => (
-                  <div key={index}>
-                    {(() => {
-                      if (self.length > 1 && index === 0) {
-                        return <p className="flex flex-row items-center justify-center text-white text-center font-regular">CONFLICT <MdErrorOutline /></p>;
-                      } else if (!schedule.subjectRendered && self.length === 1) {
-                        schedule.subjectRendered = true;
-                        return <p className="text-enamelled-jewel text-center font-extrabold">{schedule.subject}</p>;
-                      } else if (!schedule.sectionRendered && self.length === 1) {
-                        schedule.sectionRendered = true;
-                        return <p className="text-enamelled-jewel text-center font-extrabold">{schedule.section}</p>;
+          // Group identical schedules by start-end time
+          const scheduleGroups = {};
+          matchingSchedules.forEach((schedule) => {
+            const key = `${schedule.start}-${schedule.end}`;
+            if (!scheduleGroups[key]) {
+              scheduleGroups[key] = [];
+            }
+            scheduleGroups[key].push(schedule);
+          });
+
+          const hasIdenticalConflicts = Object.values(scheduleGroups).some(
+            (group) => group.length > 1
+          );
+
+          return (
+            <td
+              key={dayIndex}
+              className={`w-7/8 ${
+                matchingSchedules.length > 0
+                  ? ""
+                  : "border border-enamelled-jewel text-enamelled-jewel text-center"
+              } ${getShadeClass(day, timeSlot, index)}`}
+            >
+              {matchingSchedules.length > 0 && (
+                <>
+                  {/* Show conflict message for identical conflicts only in middle time slot */}
+                  {hasIdenticalConflicts &&
+                    Object.values(scheduleGroups).map((group, groupIndex) => {
+                      if (group.length > 1) {
+                        const middleTimeSlot = findMiddleTimeSlot(
+                          group[0],
+                          timeSlots
+                        );
+                        if (timeSlot === middleTimeSlot) {
+                          return (
+                            <div key={`conflict-${groupIndex}`}>
+                              <p className="flex flex-row items-center justify-center text-white text-center font-regular">
+                                CONFLICT <MdErrorOutline />
+                              </p>
+                            </div>
+                          );
+                        }
                       }
                       return null;
-                    })()}
-                  </div>
-                ));
-              })()
-            }
+                    })}
 
-          </td>
-        ))}
+                  {/* Show conflict message for non-identical conflicts */}
+                  {hasConflict && !hasIdenticalConflicts && index === 0 && (
+                    <div>
+                      <p className="flex flex-row items-center justify-center text-white text-center font-regular">
+                        CONFLICT <MdErrorOutline />
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Show schedule information */}
+                  {matchingSchedules.map((schedule, scheduleIndex) => {
+                    // Check if this schedule is part of an identical conflict group
+                    const isInIdenticalConflictGroup = Object.values(
+                      scheduleGroups
+                    ).some(
+                      (group) => group.length > 1 && group.includes(schedule)
+                    );
+
+                    // Only show subject/section for non-conflict or non-identical conflict schedules
+                    if (!hasConflict || !isInIdenticalConflictGroup) {
+                      if (!schedule.subjectRendered && scheduleIndex === 0) {
+                        schedule.subjectRendered = true;
+                        return (
+                          <div key={`subject-${scheduleIndex}`}>
+                            <p className="text-enamelled-jewel text-center font-extrabold">
+                              {schedule.subject}
+                            </p>
+                          </div>
+                        );
+                      } else if (
+                        !schedule.sectionRendered &&
+                        scheduleIndex === 0
+                      ) {
+                        schedule.sectionRendered = true;
+                        return (
+                          <div key={`section-${scheduleIndex}`}>
+                            <p className="text-enamelled-jewel text-center font-extrabold">
+                              {formatSection(
+                                schedule.section,
+                                schedule.courseType,
+                                schedule.bloc
+                              )}
+                            </p>
+                          </div>
+                        );
+                      }
+                    }
+                    return null;
+                  })}
+                </>
+              )}
+            </td>
+          );
+        })}
       </tr>
-
     ));
   };
 
-  // Function to determine the shading class based on the schedule
-  const getShadeClass = (day, timeSlot) => {
-    const conflictingSchedules = semScheds[day] && semScheds[day].filter(schedule => {
+  const getShadeClass = (day, timeSlot, rowIndex) => {
+    if (!semScheds[day]) return "bg-white";
+
+    const matchingSchedules = semScheds[day].filter((schedule) => {
       const startTime = schedule.start;
       const endTime = schedule.end;
-      const timeString = timeSlot;
-      const timeArray = timeString.split(" - ");
-
+      const timeArray = timeSlot.split(" - ");
       const timeSlotStart = new Date(`January 1, 2000 ${timeArray[0]}`);
       const timeSlotEnd = new Date(`January 1, 2000 ${timeArray[1]}`);
       const start = new Date(`January 1, 2000 ${startTime}`);
       const end = new Date(`January 1, 2000 ${endTime}`);
-      // Check if timeSlot falls within the range of start and end times
       return timeSlotStart >= start && timeSlotEnd <= end;
     });
 
-    // Check for conflicting schedules
-    const hasConflicts = conflictingSchedules && conflictingSchedules.length > 1;
+    // Determine if this is the first row of a schedule
+    const isFirstRowOfSchedule = () => {
+      const timeArray = timeSlot.split(" - ");
+      const currentSlotStart = new Date(`January 1, 2000 ${timeArray[0]}`);
 
-    // Return 'bg-white' for empty cells, pastel-red if there are conflicts, else alternate between 'veiling-waterfalls' and 'placebo-turquoise'
-    return semScheds[day] && semScheds[day].some(schedule => {
-      const startTime = schedule.start;
-      const endTime = schedule.end;
-      const timeString = timeSlot;
-      const timeArray = timeString.split(" - ");
+      return semScheds[day].some((schedule) => {
+        const scheduleStart = new Date(`January 1, 2000 ${schedule.start}`);
+        return currentSlotStart.getTime() === scheduleStart.getTime();
+      });
+    };
 
-      const timeSlotStart = new Date(`January 1, 2000 ${timeArray[0]}`);
-      const timeSlotEnd = new Date(`January 1, 2000 ${timeArray[1]}`);
-      const start = new Date(`January 1, 2000 ${startTime}`);
-      const end = new Date(`January 1, 2000 ${endTime}`);
-      // Check if timeSlot falls within the range of start and end times
-      return timeSlotStart >= start && timeSlotEnd <= end;
-    }) ? (hasConflicts ? 'bg-pastel-red border-r border-black' : (conflictingSchedules && conflictingSchedules.length % 2 === 0 ? 'bg-veiling-waterfalls' : 'bg-placebo-turquoise')) : 'bg-white';
+    if (matchingSchedules.length === 0) return "bg-white";
+
+    const hasConflicts = matchingSchedules.length > 1;
+    const isFirstRow = isFirstRowOfSchedule();
+
+    if (hasConflicts) {
+      return `bg-pastel-red ${
+        isFirstRow ? "border-t" : ""
+      } border-r border-black`;
+    } else {
+      return `${
+        matchingSchedules.length % 2 === 0
+          ? "bg-veiling-waterfalls"
+          : "bg-placebo-turquoise"
+      } ${isFirstRow ? "border-t" : ""} border-r border-black`;
+    }
   };
-
-
 
   return (
     <>
@@ -158,19 +264,24 @@ const TimeTable = () => {
         </colgroup>
         <thead>
           <tr>
-            <th className="border-b-2 border-enamelled-jewel text-enamelled-jewel text-xl font-extrabold w-32">Time</th>
+            <th className="border-b-2 border-enamelled-jewel text-enamelled-jewel text-xl font-extrabold w-32">
+              Time
+            </th>
             {daysOfWeek.map((day, index) => (
-              <th key={index} className="border-b-2 border-enamelled-jewel text-enamelled-jewel text-xl font-extrabold">{day}</th>
+              <th
+                key={index}
+                className="border-b-2 border-enamelled-jewel text-enamelled-jewel text-lg font-extrabold"
+              >
+                {day}
+              </th>
             ))}
           </tr>
         </thead>
 
-        <tbody>
-          {generateScheduleRows()}
-        </tbody>
+        <tbody>{generateScheduleRows()}</tbody>
       </table>
     </>
   );
 };
 
-export default TimeTable; 
+export default TimeTable;
