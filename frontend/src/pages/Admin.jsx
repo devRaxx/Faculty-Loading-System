@@ -27,21 +27,18 @@ const Admin = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [errors, setErrors] = useState(null);
   const handleCreate = async () => {
-    const res = await fetch(
-      "https://faculty-loading-system.vercel.app/api/auth/signup",
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userName: newUserName,
-          password: newUserPassword,
-          userType: newUserType,
-        }),
-      }
-    );
+    const res = await fetch("http://localhost:4000/api/auth/signup", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userName: newUserName,
+        password: newUserPassword,
+        userType: newUserType,
+      }),
+    });
     const data = await res.json();
     if (data.errors) {
       setErrors({ message: data.errors.password });
@@ -53,13 +50,10 @@ const Admin = () => {
   useEffect(() => {
     (async function () {
       try {
-        const res = await fetch(
-          "https://faculty-loading-system.vercel.app/api/auth/user",
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
+        const res = await fetch("http://localhost:4000/api/auth/user", {
+          method: "GET",
+          credentials: "include",
+        });
         const admin = await res.json();
         if (admin.userType == "Admin") {
           setAdminData(admin);

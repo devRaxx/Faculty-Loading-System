@@ -21,7 +21,7 @@ const BlocTable = () => {
       }).toString();
 
       const res = await fetch(
-        `https://faculty-loading-system.vercel.app/api/bloc/${params.id}?${query}`,
+        `http://localhost:4000/api/bloc/${params.id}?${query}`,
         {
           method: "GET",
           credentials: "include",

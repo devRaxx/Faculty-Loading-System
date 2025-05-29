@@ -249,7 +249,7 @@ const CourseMaker = ({
                   onClick={async () => {
                     if (isNewCourseModalOpen) {
                       const res = await fetch(
-                        "https://faculty-loading-system.vercel.app/api/course/",
+                        "http://localhost:4000/api/course/",
                         {
                           method: "POST",
                           credentials: "include",
@@ -512,7 +512,7 @@ const CourseMaker = ({
                         name: newCourseDescription,
                       });
                       const res = await fetch(
-                        "https://faculty-loading-system.vercel.app/api/course/",
+                        "http://localhost:4000/api/course/",
                         {
                           method: "POST",
                           credentials: "include",

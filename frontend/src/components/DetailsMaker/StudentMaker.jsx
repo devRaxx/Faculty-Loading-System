@@ -309,7 +309,7 @@ const StudentMaker = ({
                   className="w-20 h-10 border border-enamelled-jewel transition ease-in duration-200 hover:shadow-custom hover:bg-placebo-turquoise"
                   onClick={async () => {
                     const res = await fetch(
-                      `https://faculty-loading-system.vercel.app/api/degreeprogram/${params.id}`,
+                      `http://localhost:4000/api/degreeprogram/${params.id}`,
                       {
                         method: "POST",
                         credentials: "include",
@@ -437,7 +437,7 @@ const StudentMaker = ({
                   className="w-20 h-10 border border-enamelled-jewel transition ease-in duration-200 hover:shadow-custom hover:bg-placebo-turquoise"
                   onClick={async () => {
                     const res = await fetch(
-                      `https://faculty-loading-system.vercel.app/api/bloc/${params.id}`,
+                      `http://localhost:4000/api/bloc/${params.id}`,
                       {
                         method: "POST",
                         credentials: "include",

@@ -37,17 +37,14 @@ const Home = () => {
     };
     (async function () {
       try {
-        const res = await fetch(
-          "https://faculty-loading-system.vercel.app/api/semester",
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify(payload),
-          }
-        );
+        const res = await fetch("http://localhost:4000/api/semester", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
 
         const data = await res.json();
         console.log(data);
@@ -79,17 +76,14 @@ const Home = () => {
       userId: userData.userId,
     };
     (async function () {
-      const res = await fetch(
-        "https://faculty-loading-system.vercel.app/api/semester",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch("http://localhost:4000/api/semester", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
       const data = await res.json();
       setSemData([...semData, data]);
       onClose(); // close modal after adding
@@ -99,13 +93,10 @@ const Home = () => {
   useEffect(() => {
     (async function () {
       try {
-        const res = await fetch(
-          "https://faculty-loading-system.vercel.app/api/auth/user",
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
+        const res = await fetch("http://localhost:4000/api/auth/user", {
+          method: "GET",
+          credentials: "include",
+        });
         const user = await res.json();
         setUserData(user);
       } catch (error) {
@@ -117,13 +108,10 @@ const Home = () => {
   useEffect(() => {
     (async function () {
       try {
-        const res = await fetch(
-          "https://faculty-loading-system.vercel.app/api/semester",
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
+        const res = await fetch("http://localhost:4000/api/semester", {
+          method: "GET",
+          credentials: "include",
+        });
         const data = await res.json();
         setSemData(data);
       } catch (err) {
@@ -208,7 +196,7 @@ const Home = () => {
                     urlParams.get("copy")
                       ? (async function () {
                           const res = await fetch(
-                            "https://faculty-loading-system.vercel.app/api/semester/copy",
+                            "http://localhost:4000/api/semester/copy",
                             {
                               method: "POST",
                               headers: {

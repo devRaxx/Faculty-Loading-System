@@ -24,13 +24,10 @@ const LinkButton = ({ to, children }) => {
 
   const handleSignOut = () => {
     (async function () {
-      await fetch(
-        "https://faculty-loading-system.vercel.app/api/auth/signout",
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
+      await fetch("http://localhost:4000/api/auth/signout", {
+        method: "GET",
+        credentials: "include",
+      });
     })();
     navigate(to);
   };
