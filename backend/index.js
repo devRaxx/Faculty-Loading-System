@@ -33,12 +33,6 @@ app.use(
   })
 );
 
-app.use("/", (req, res, next) => {
-  console.log(req.path, req.method);
-  res.send("Hello World!");
-  // next();
-});
-
 // routes
 app.use("/api/auth", loginRoutes);
 app.use("/api/signup", loginRoutes);
@@ -66,3 +60,5 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
+
+module.exports = app;
