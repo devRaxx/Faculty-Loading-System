@@ -157,11 +157,6 @@ const AlphaSchedList = ({ editing, searchInput }) => {
             >
               Remarks
             </th>
-            {editing && (
-              <th className="bg-placebo-turquoise border border-collapse border-enamelled-jewel rounded-tr-md rounded-br-md border-l-0">
-                Delete
-              </th>
-            )}
           </tr>
         </thead>
         <tbody>
@@ -178,7 +173,6 @@ const AlphaSchedList = ({ editing, searchInput }) => {
             }) => {
               return (
                 <tr
-                  className="h-12 hover:bg-placebo-turquoise"
                   key={_id}
                   onMouseDown={() => {
                     if (editing) {
@@ -197,6 +191,11 @@ const AlphaSchedList = ({ editing, searchInput }) => {
                       onOpen();
                     }
                   }}
+                  className={`h-12 transition-colors duration-150 ${
+                    editing
+                      ? "bg-[#eaf9f9] hover:bg-[#d9f2f2]" // Slightly darkened rows while editing
+                      : "hover:bg-placebo-turquoise" // Normal hover when not editing
+                  }`}
                 >
                   <td className="border border-collapse border-enamelled-jewel border-b-1 border-x-0 border-t-0">
                     {course.code}
@@ -252,9 +251,6 @@ const AlphaSchedList = ({ editing, searchInput }) => {
                   </td>
                   <td className="border border-collapse border-enamelled-jewel border-b-1 border-x-0 border-t-0">
                     {remarks}
-                  </td>
-                  <td className="border border-collapse border-enamelled-jewel border-b-1 border-x-0 border-t-0">
-                    {editing && <IoTrashOutline />}
                   </td>
                 </tr>
               );

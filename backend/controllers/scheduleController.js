@@ -163,8 +163,32 @@ const updateSchedule = async (req, res) => {
   }
 };
 
+const deleteSchedule = async (req, res) => {
+  const { _id } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return res.status(400).json({ error: "Invalid Schedule ID for deletion." });
+  }
+
+  try {
+    const deletedSchedule = await SCHEDULE.findByIdAndDelete(_id);
+
+    if (!deletedSchedule) {
+      return res
+        .status(404)
+        .json({ error: "Schedule not found or already deleted." });
+    }
+
+    res.status(200).json(deletedSchedule);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getSchedule,
   createSchedule,
   updateSchedule,
+  deleteSchedule,
 };
