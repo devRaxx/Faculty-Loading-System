@@ -7,23 +7,20 @@ import { PiCopy } from "react-icons/pi";
 import PropTypes from "prop-types";
 
 const AlphaSchedList = ({ editing, searchInput, courseTypeFilter }) => {
-  const { semesterSchedules, filteredSemesterSchedules, dispatch } =
+  const { semesterSchedules, filteredSemesterSchedules, dispatch, isLoading } =
     useSemesterContext();
   const [queryParameters] = useSearchParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [isLoading, setIsLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 13;
 
   useEffect(() => {
     (function () {
-      setIsLoading(true);
       dispatch({
         type: "FILTER_SCHEDULE_DEPARTMENT",
         payload: queryParameters.getAll("filter"),
       });
-      setIsLoading(false);
     })();
   }, [queryParameters, dispatch]);
 
@@ -252,7 +249,8 @@ const AlphaSchedList = ({ editing, searchInput, courseTypeFilter }) => {
           )}
         </tbody>
       </table>
-      <div className="flex items-center justify-center space-x-4 mt-4">
+      {!isLoading && (
+        <div className="flex items-center justify-center space-x-4 mt-4">
         <button
           onClick={handleFirstPage}
           disabled={currentPage === 1}
@@ -284,10 +282,35 @@ const AlphaSchedList = ({ editing, searchInput, courseTypeFilter }) => {
         >
           Last
         </button>
-      </div>
+        </div>
+      )}
       {isLoading && (
-        <div className="mt-24">
-          <p className="text-8xl font-bold">Loading ...</p>
+        <div className="mt-6" role="status" aria-live="polite">
+          <div className="w-full mb-4">
+            <div className="h-6 bg-placebo-turquoise rounded-md w-1/4 animate-pulse"></div>
+          </div>
+          <table className="w-full border-separate border-spacing-0">
+            <thead className="h-12">
+              <tr className="text-lg">
+                {Array.from({ length: 11 }).map((_, i) => (
+                  <th key={i} className="py-2 px-2">
+                    <div className="h-4 bg-slate-200 rounded w-16 animate-pulse" />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: 6 }).map((_, row) => (
+                <tr key={row} className="h-12">
+                  {Array.from({ length: 11 }).map((_, col) => (
+                    <td key={col} className="border border-collapse border-enamelled-jewel border-b-1 border-x-0 border-t-0 px-2">
+                      <div className="h-4 bg-slate-200 rounded animate-pulse w-1/2" />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
       {!isLoading &&

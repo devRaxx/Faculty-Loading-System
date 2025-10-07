@@ -134,8 +134,32 @@ const Summary = () => {
           </table>
           <div className="w-full h-full flex items-center justify-center">
             {isLoading && (
-              <div className="mt-24">
-                <p className="text-8xl font-bold">Loading ...</p>
+              <div className="mt-6 w-full" role="status" aria-live="polite">
+                <div className="w-full mb-4">
+                  <div className="h-6 bg-placebo-turquoise rounded-md w-1/4 animate-pulse" />
+                </div>
+                <table className="w-full border-separate border-spacing-0">
+                  <thead className="h-12">
+                    <tr className="text-lg">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <th key={i} className="py-2 px-2">
+                          <div className="h-4 bg-slate-200 rounded w-20 animate-pulse" />
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Array.from({ length: 5 }).map((_, row) => (
+                      <tr key={row} className="h-12">
+                        {Array.from({ length: 6 }).map((_, col) => (
+                          <td key={col} className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 px-2">
+                            <div className="h-4 bg-slate-200 rounded animate-pulse w-1/2" />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
             {semesterFaculties.length == 0 && !isLoading && (
