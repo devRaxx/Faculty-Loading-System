@@ -8,7 +8,7 @@ import { useSemesterContext } from "../hooks/useSemesterContext";
 function Faculty() {
   const { isLoading } = useSemesterContext();
   return !isLoading ? (
-    <div className="flex flex-col w-full px-48 space-y-10 justify-center items-center mt-10">
+    <div className="flex flex-col w-full px-36 space-y-10 justify-center items-center mt-10">
       <div className="flex flex-row w-full justify-evenly">
         <TimeTable />
         <div className="flex flex-col space-y-5 mt-20">

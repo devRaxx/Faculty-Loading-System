@@ -164,15 +164,7 @@ const AlphaSchedList = ({ editing, searchInput, courseTypeFilter }) => {
         </thead>
         <tbody>
           {currentSchedules.map(
-            ({
-              course,
-              faculty,
-              room,
-              schedule,
-              remarks,
-              students,
-              _id,
-            }) => {
+            ({ course, faculty, room, schedule, remarks, students, _id }) => {
               return (
                 <tr
                   key={_id}

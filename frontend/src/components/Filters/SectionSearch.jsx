@@ -34,7 +34,9 @@ const SectionSearch = ({ onSelect }) => {
   const uniqueSections = Object.values(uniqueSectionsMap);
 
   const filtered = uniqueSections
-    .filter((it) => it.display.toLowerCase().includes(searchInput.toLowerCase()))
+    .filter((it) =>
+      it.display.toLowerCase().includes(searchInput.toLowerCase())
+    )
     .slice(0, 20);
 
   const handleSelection = (display) => {
@@ -44,7 +46,9 @@ const SectionSearch = ({ onSelect }) => {
     const matchedSchedules = (semesterSchedules || []).filter((s) =>
       s.schedule.some((sch) => {
         const blocNumber = s.students?.[0]?.bloc || "1";
-        return formatSection(sch.section, s.course.type, blocNumber) === display;
+        return (
+          formatSection(sch.section, s.course.type, blocNumber) === display
+        );
       })
     );
     onSelect(display, matchedSchedules);
@@ -65,7 +69,9 @@ const SectionSearch = ({ onSelect }) => {
       </div>
 
       <div
-        className={`absolute w-full bg-white border-2 border-enamelled-jewel rounded-md mt-1 z-10 overflow-hidden max-h-60 overflow-y-auto ${!dropdownVisible && "hidden"}`}
+        className={`absolute w-full bg-white border-2 border-enamelled-jewel rounded-md mt-1 z-10 overflow-hidden max-h-60 overflow-y-auto ${
+          !dropdownVisible && "hidden"
+        }`}
       >
         {filtered.length > 0 ? (
           filtered.map((it) => (
