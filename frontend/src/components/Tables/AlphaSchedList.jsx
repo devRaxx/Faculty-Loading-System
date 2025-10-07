@@ -169,7 +169,6 @@ const AlphaSchedList = ({ editing, searchInput, courseTypeFilter }) => {
               faculty,
               room,
               schedule,
-              section,
               remarks,
               students,
               _id,

@@ -100,46 +100,79 @@ const SectionTimeTable = ({ schedules }) => {
                 scheduleGroups[key].push(schedule);
               });
 
+              // Compute placement for each schedule on the day: which slot shows the subject (middle)
+              // and which slot (if any) should show the faculty (we try the slot immediately after middle)
+              const allSchedulesForDay = semScheds[day] || [];
+              const placements = allSchedulesForDay.map((schedule) => {
+                // Find original middle index, then shift display one slot earlier
+                const middle = findMiddleTimeSlot(schedule, timeSlots);
+                const middleIndex = timeSlots.indexOf(middle);
+                // Default to first slot when middle not found
+                let displayIndex = 0;
+                if (middleIndex !== -1) displayIndex = Math.max(0, middleIndex - 1);
+                const displaySlot = timeSlots[displayIndex];
+
+                let facultySlot = null;
+                // Try to place faculty in the slot immediately after the displaySlot (which becomes the previous middle)
+                if (displayIndex + 1 < timeSlots.length) {
+                  const nextSlot = timeSlots[displayIndex + 1];
+                  // Verify the next slot is still within the schedule range
+                  const timeArrayNext = nextSlot.split(" - ");
+                  const nsStart = new Date(`January 1, 2000 ${timeArrayNext[0]}`);
+                  const nsEnd = new Date(`January 1, 2000 ${timeArrayNext[1]}`);
+                  const start = new Date(`January 1, 2000 ${schedule.start}`);
+                  const end = new Date(`January 1, 2000 ${schedule.end}`);
+                  if (nsStart >= start && nsEnd <= end) facultySlot = nextSlot;
+                }
+                return { ...schedule, middle: displaySlot, facultySlot };
+              });
+
               const hasIdenticalConflicts = Object.values(scheduleGroups).some((g) => g.length > 1);
 
               return (
-                <td key={dayIndex} className={`${matchingSchedules.length > 0 ? "" : "border border-enamelled-jewel text-enamelled-jewel text-center"} ${getShadeClass(day, timeSlot)}`}>
+                <td
+                  key={dayIndex}
+                  className={`${matchingSchedules.length > 0 ? "" : "border border-enamelled-jewel text-enamelled-jewel text-center"} ${getShadeClass(day, timeSlot)} align-middle`}
+                >
                   {matchingSchedules.length > 0 && (
                     <>
-                      {hasIdenticalConflicts && Object.values(scheduleGroups).map((group, gi) => {
-                        if (group.length > 1) {
-                          const middle = findMiddleTimeSlot(group[0], timeSlots);
-                          if (timeSlot === middle) {
-                            return (
-                              <div key={`conflict-${gi}`}>
-                                <p className="flex flex-row items-center justify-center text-white text-center font-regular">CONFLICT <MdErrorOutline /></p>
-                              </div>
-                            );
+                      {/* Identical conflicts: show CONFLICT only in the middle time slot */}
+                      {hasIdenticalConflicts &&
+                        Object.values(scheduleGroups).map((group, gi) => {
+                          if (group.length > 1) {
+                            const middle = findMiddleTimeSlot(group[0], timeSlots);
+                            if (timeSlot === middle) {
+                              return (
+                                <div key={`conflict-${gi}`} className="flex items-center justify-center h-full">
+                                  <p className="flex flex-row items-center justify-center text-white text-center font-regular">CONFLICT <MdErrorOutline /></p>
+                                </div>
+                              );
+                            }
                           }
+                          return null;
+                        })}
+
+                      {/* For normal schedules render subject + FIC only in the middle timeslot so it appears centered in shaded region */}
+                      {/* Render subjects in their middle slot, and render faculty names in the next slot when possible */}
+                      {placements.map((p) => {
+                        if (p.middle === timeSlot) {
+                          return (
+                            <div key={`sub-${p.subject}-${p.start}-${p.end}`} className="flex items-center justify-center h-full">
+                              <p className="text-enamelled-jewel text-center font-extrabold">{p.subject}</p>
+                            </div>
+                          );
                         }
                         return null;
                       })}
 
-                      {matchingSchedules.map((schedule, si) => {
-                        // Use flags to render subject once per schedule duration and show FIC (faculty last name)
-                        if (!schedule.subjectRendered && si === 0) {
-                          schedule.subjectRendered = true;
+                      {placements.map((p) => {
+                        if (p.facultySlot === timeSlot) {
                           return (
-                            <div key={`subject-${si}`}>
-                              <p className="text-enamelled-jewel text-center font-extrabold">{schedule.subject}</p>
+                            <div key={`fac-${p.subject}-${p.start}-${p.end}`} className="flex items-center justify-center h-full">
+                              <p className="text-enamelled-jewel text-center font-semibold">{p.facultyLastName}</p>
                             </div>
                           );
                         }
-
-                        if (!schedule.ficRendered && si === 0) {
-                          schedule.ficRendered = true;
-                          return (
-                            <div key={`fic-${si}`}>
-                              <p className="text-enamelled-jewel text-center font-extrabold">{schedule.facultyLastName}</p>
-                            </div>
-                          );
-                        }
-
                         return null;
                       })}
                     </>
