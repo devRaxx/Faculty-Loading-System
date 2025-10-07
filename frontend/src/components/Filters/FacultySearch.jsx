@@ -11,17 +11,16 @@ const FacultySearch = () => {
   const { semesterFaculties, dispatch } = useSemesterContext();
 
   const handleFacultySelection = (faculty) => {
-    setSelectedFaculty(faculty); // Update selected faculty
-    setSearchInput(`${faculty.firstName} ${faculty.lastName}`); // Fill search bar with selected value
+    setSelectedFaculty(faculty);
+    setSearchInput(`${faculty.firstName} ${faculty.lastName}`);
     dispatch({
       type: "SELECT_FACULTY",
       payload: faculty,
       query: queryParameters.getAll("filter"),
     });
-    setDropdownVisible(false); // Hide dropdown after selection
+    setDropdownVisible(false);
   };
 
-  // Filter faculties based on search input
   const filteredFaculties = semesterFaculties
     ? semesterFaculties
         .filter((faculty) =>
@@ -29,7 +28,7 @@ const FacultySearch = () => {
             .toLowerCase()
             .includes(searchInput.toLowerCase())
         )
-        .slice(0, 10) // Limit to 10 items
+        .slice(0, 10)
     : [];
 
   return (
@@ -41,7 +40,7 @@ const FacultySearch = () => {
             setDropdownVisible(true);
           }}
           onBlur={() => {
-            setTimeout(() => setDropdownVisible(false), 200); // Prevent immediate hiding
+            setTimeout(() => setDropdownVisible(false), 200);
           }}
           placeholder={
             selectedFaculty

@@ -6,24 +6,17 @@ export const convertToFacultyTimeTableData = (
     return [];
   }
 
-  // Initialize an empty array to store the converted format
   let convertedData = [];
 
-  // Iterate through the filteredData array
   facultySchedule.forEach((item) => {
-    // Iterate through the schedule array in each item
     item.schedule.forEach((schedule) => {
-      // Extract necessary information from the schedule object
       const { day, section, startTime, endTime } = schedule;
 
-      // If the schedule day is an array, split it into separate objects
       if (Array.isArray(day)) {
-        // Iterate through each day in the array
         day.forEach((singleDay) => {
-          // Construct the object for each single day
           const convertedItem = {
             day: singleDay,
-            subject: item.course.code, // Assuming course code represents the subject
+            subject: item.course.code,
             section,
             start: startTime,
             end: endTime,
@@ -31,14 +24,12 @@ export const convertToFacultyTimeTableData = (
             sectionRendered: false,
           };
 
-          // Push the converted item to the convertedData array
           convertedData.push(convertedItem);
         });
       } else {
-        // If the schedule day is not an array, construct the object normally
         const convertedItem = {
           day,
-          subject: item.course.code, // Assuming course code represents the subject
+          subject: item.course.code,
           section,
           start: startTime,
           end: endTime,
@@ -46,16 +37,57 @@ export const convertToFacultyTimeTableData = (
           sectionRendered: false,
         };
 
-        // Push the converted item to the convertedData array
         convertedData.push(convertedItem);
       }
     });
   });
 
-  // Flatten the array of arrays into a single array of objects
   convertedData = convertedData.flat();
 
-  // Output the converted data
   console.log(convertedData);
   return convertedData;
+};
+
+export const convertToSectionTimeTableData = (schedules) => {
+  if (!schedules || schedules.length === 0) return [];
+
+  let convertedData = [];
+
+  schedules.forEach((item) => {
+    item.schedule.forEach((schedule) => {
+      const { day, section, startTime, endTime } = schedule;
+
+      if (Array.isArray(day)) {
+        day.forEach((singleDay) => {
+          convertedData.push({
+            day: singleDay,
+            subject: item.course.code,
+            section,
+            start: startTime,
+            end: endTime,
+            courseType: item.course.type,
+            bloc: item.students?.[0]?.bloc || "1",
+            facultyLastName: item.faculty?.lastName || "",
+            subjectRendered: false,
+            ficRendered: false,
+          });
+        });
+      } else {
+        convertedData.push({
+          day,
+          subject: item.course.code,
+          section,
+          start: startTime,
+          end: endTime,
+          courseType: item.course.type,
+          bloc: item.students?.[0]?.bloc || "1",
+          facultyLastName: item.faculty?.lastName || "",
+          subjectRendered: false,
+          ficRendered: false,
+        });
+      }
+    });
+  });
+
+  return convertedData.flat();
 };

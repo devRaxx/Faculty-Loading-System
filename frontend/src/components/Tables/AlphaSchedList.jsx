@@ -1,22 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { IoTrashOutline } from "react-icons/io5";
 import { useDisclosure } from "@chakra-ui/react";
 import EditScheduleModal from "../../modals/EditScheduleModal";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useSemesterContext } from "../../hooks/useSemesterContext";
 import { PiCopy } from "react-icons/pi";
+import PropTypes from "prop-types";
 
-const AlphaSchedList = ({ editing, searchInput }) => {
-  const {
-    semesterSchedules,
-    filteredSemesterSchedules,
-    editSchedule,
-    dispatch,
-  } = useSemesterContext();
+const AlphaSchedList = ({ editing, searchInput, courseTypeFilter }) => {
+  const { semesterSchedules, filteredSemesterSchedules, dispatch } =
+    useSemesterContext();
   const [queryParameters] = useSearchParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
-  const params = useParams();
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 13;
@@ -30,7 +25,7 @@ const AlphaSchedList = ({ editing, searchInput }) => {
       });
       setIsLoading(false);
     })();
-  }, [queryParameters]);
+  }, [queryParameters, dispatch]);
 
   // Helper function to format section based on course type
   const formatSection = (section, courseType, bloc) => {
@@ -67,27 +62,35 @@ const AlphaSchedList = ({ editing, searchInput }) => {
   };
 
   const filteredSchedules = useMemo(() => {
-    if (!searchInput) return filteredSemesterSchedules;
-    return filteredSemesterSchedules.filter(
-      ({ course, faculty, room, schedule, section, remarks, students }) => {
-        const searchLower = searchInput.toLowerCase();
-        return (
-          // Course Code
-          course.code.toLowerCase().includes(searchLower) ||
-          // Course Description
-          course.name.toLowerCase().includes(searchLower) ||
-          // Students
-          students.some(({ name, bloc, yearLevel }) =>
-            `${yearLevel}${name}${bloc ? " - " + bloc : ""}`
-              .toLowerCase()
-              .includes(searchLower)
-          ) ||
-          // FIC (Faculty in Charge)
-          faculty.lastName.toLowerCase().includes(searchLower)
-        );
-      }
-    );
-  }, [filteredSemesterSchedules, searchInput]);
+    const base = !searchInput
+      ? filteredSemesterSchedules
+      : filteredSemesterSchedules.filter(({ course, faculty, students }) => {
+          const searchLower = searchInput.toLowerCase();
+          return (
+            course.code.toLowerCase().includes(searchLower) ||
+            course.name.toLowerCase().includes(searchLower) ||
+            students.some(({ name, bloc, yearLevel }) =>
+              `${yearLevel}${name}${bloc ? " - " + bloc : ""}`
+                .toLowerCase()
+                .includes(searchLower)
+            ) ||
+            faculty.lastName.toLowerCase().includes(searchLower)
+          );
+        });
+
+    // If a courseTypeFilter is provided, restrict to that course type (e.g., "LAB")
+    if (courseTypeFilter) {
+      return base.filter(({ course }) => course.type === courseTypeFilter);
+    }
+
+    return base;
+  }, [filteredSemesterSchedules, searchInput, courseTypeFilter]);
+
+  AlphaSchedList.propTypes = {
+    editing: PropTypes.bool,
+    searchInput: PropTypes.string,
+    courseTypeFilter: PropTypes.string,
+  };
 
   const totalPages = Math.ceil(filteredSchedules.length / itemsPerPage);
 

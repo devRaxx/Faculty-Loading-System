@@ -295,14 +295,8 @@ const FacultySchedList = ({ edit }) => {
         !isLoading && (
           <div className="mt-24 flex flex-col items-center justify-center">
             <p className="text-7xl font-bold text-enamelled-jewel">
-              Start Adding the List
+              Please select a faculty
             </p>
-            <p className="text-3xl p-2 font-light italic text-enamelled-jewel">
-              or
-            </p>
-            <button className="flex items-center justify-center w-96 h-20 border text-xl font-semibold text-enamelled-jewel border-enamelled-jewel rounded-md bg-placebo-turquoise transition ease-in duration-200 hover:shadow-custom">
-              <PiCopy /> Copy Alpha List
-            </button>
           </div>
         )}
 

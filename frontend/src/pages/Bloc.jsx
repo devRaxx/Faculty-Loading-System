@@ -1,40 +1,33 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import BlocFilterBar from "../components/Filters/BlocFilterBar";
-import BlocTable from "../components/Tables/BlocTable";
-import BlocSchedList from "../components/Tables/BlocSchedList";
-import BlocSearch from "../components/Filters/BlocSearch";
+import { useState } from "react";
+import SectionSearch from "../components/Filters/SectionSearch";
+import SectionTimeTable from "../components/Tables/SectionTimeTable";
+import { useSemesterContext } from "../hooks/useSemesterContext";
 
 const Bloc = () => {
-  const [semScheds, setSemScheds] = useState([]);
-  const params = useParams();
-  useEffect(() => {
-    (async function () {
-      const res = await fetch(
-        `http://localhost:4000/api/semester/${params.id}`,
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-      const data = await res.json();
-      console.log(data);
-      setSemScheds(data);
-    })();
-  }, [params.id]);
+  const [selectedSectionDisplay, setSelectedSectionDisplay] = useState(null);
+  const [selectedSchedules, setSelectedSchedules] = useState([]);
+  const { isLoading } = useSemesterContext();
 
-  return (
-    <div className="flex flex-col w-full px-48 space-y-5 justify-center items-center mt-10">
+  const handleSelect = (display, schedules) => {
+    setSelectedSectionDisplay(display);
+    setSelectedSchedules(schedules || []);
+  };
+
+  return !isLoading ? (
+    <div className="flex flex-col w-full px-48 space-y-10 justify-center items-center mt-10">
       <div className="flex flex-row w-full justify-evenly">
-        <BlocTable />
-        <div className="flex flex-col space-y-5">
-          <BlocFilterBar />
-          <BlocSearch />
+        <SectionTimeTable schedules={selectedSchedules} />
+        <div className="flex flex-col space-y-5 mt-20 w-1/4">
+          <SectionSearch onSelect={handleSelect} />
+          <div className="border border-enamelled-jewel p-4 rounded-md">
+            <p className="text-xl font-bold">{selectedSectionDisplay || "Select a section"}</p>
+            <p className="text-sm text-gray-600">Shows timetable for the selected lab section</p>
+          </div>
         </div>
       </div>
-      <div className="border border-enamelled-jewel w-5/6"></div>
-      <BlocSchedList />
     </div>
+  ) : (
+    <div className="w-full h-full flex justify-center items-center text-9xl font-bold">Loading...</div>
   );
 };
 
