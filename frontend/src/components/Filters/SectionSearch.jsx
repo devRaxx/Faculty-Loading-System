@@ -3,9 +3,8 @@ import { useSemesterContext } from "../../hooks/useSemesterContext";
 import { FaAngleDown } from "react-icons/fa6";
 import PropTypes from "prop-types";
 
-const formatSection = (section, courseType, bloc) => {
-  if (courseType === "LAB") return `${section}-${bloc}L`;
-  return section;
+const formatStudentDisplay = ({ name, bloc, yearLevel }) => {
+  return `${yearLevel || ""}${name || ""}${bloc ? " - " + bloc : ""}`;
 };
 
 const SectionSearch = ({ onSelect }) => {
@@ -13,27 +12,23 @@ const SectionSearch = ({ onSelect }) => {
   const [searchInput, setSearchInput] = useState("");
   const { semesterSchedules } = useSemesterContext();
 
-  // Build unique list of formatted lab sections from semesterSchedules
-  const labSectionItems = (semesterSchedules || [])
-    .filter((s) => s.course?.type === "LAB")
-    .flatMap((s) =>
-      s.schedule.map((sch) => {
-        const blocNumber = s.students?.[0]?.bloc || "1";
-        return {
-          display: formatSection(sch.section, s.course.type, blocNumber),
-          scheduleItem: s,
-        };
-      })
-    );
+  const studentItems = (semesterSchedules || []).flatMap((s) =>
+    (s.students || []).map((stu) => ({
+      display: formatStudentDisplay(stu),
+      scheduleItem: s,
+    }))
+  );
 
   // unique by display
-  const uniqueSectionsMap = {};
-  labSectionItems.forEach((it) => {
-    if (!uniqueSectionsMap[it.display]) uniqueSectionsMap[it.display] = it;
+  const uniqueStudentsMap = {};
+  studentItems.forEach((it) => {
+    if (it.display && / - \d+$/.test(it.display)) {
+      if (!uniqueStudentsMap[it.display]) uniqueStudentsMap[it.display] = it;
+    }
   });
-  const uniqueSections = Object.values(uniqueSectionsMap);
+  const uniqueStudents = Object.values(uniqueStudentsMap);
 
-  const filtered = uniqueSections
+  const filtered = uniqueStudents
     .filter((it) =>
       it.display.toLowerCase().includes(searchInput.toLowerCase())
     )
@@ -42,14 +37,8 @@ const SectionSearch = ({ onSelect }) => {
   const handleSelection = (display) => {
     setSearchInput(display);
     setTimeout(() => setDropdownVisible(false), 100);
-    // gather schedules that correspond to this display value
     const matchedSchedules = (semesterSchedules || []).filter((s) =>
-      s.schedule.some((sch) => {
-        const blocNumber = s.students?.[0]?.bloc || "1";
-        return (
-          formatSection(sch.section, s.course.type, blocNumber) === display
-        );
-      })
+      (s.students || []).some((stu) => formatStudentDisplay(stu) === display)
     );
     onSelect(display, matchedSchedules);
   };

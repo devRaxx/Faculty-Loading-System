@@ -21,10 +21,11 @@ const Bloc = () => {
           <SectionSearch onSelect={handleSelect} />
           <div className="border border-enamelled-jewel p-4 rounded-md">
             <p className="text-xl font-bold">
-              {selectedSectionDisplay || "Select a section"}
+              {selectedSectionDisplay || "Select a bloc"}
             </p>
             <p className="text-sm text-gray-600">
-              Shows timetable for the selected lab section
+              Shows timetable for the selected bloc. If conflicts exist, they
+              will be shown in the conflict table below.
             </p>
           </div>
         </div>

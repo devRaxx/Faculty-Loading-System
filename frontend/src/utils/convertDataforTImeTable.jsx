@@ -69,6 +69,7 @@ export const convertToSectionTimeTableData = (schedules) => {
             bloc: item.students?.[0]?.bloc || "1",
             facultyLastName: item.faculty?.lastName || "",
             subjectRendered: false,
+            sectionRendered: false,
             ficRendered: false,
           });
         });
@@ -83,6 +84,7 @@ export const convertToSectionTimeTableData = (schedules) => {
           bloc: item.students?.[0]?.bloc || "1",
           facultyLastName: item.faculty?.lastName || "",
           subjectRendered: false,
+          sectionRendered: false,
           ficRendered: false,
         });
       }
