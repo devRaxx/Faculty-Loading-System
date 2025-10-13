@@ -111,6 +111,26 @@ const SectionTimeTable = ({ schedules }) => {
     } ${isFirstRow ? "border-t" : ""} border-r border-black`;
   };
 
+  // compute whether there are any conflicts across semScheds so we can hide the heading
+  const conflictsExist = (() => {
+    if (!semScheds) return false;
+    for (const day of daysOfWeek) {
+      const schedules = semScheds[day] || [];
+      for (let i = 0; i < schedules.length; i++) {
+        for (let j = i + 1; j < schedules.length; j++) {
+          const a = schedules[i];
+          const b = schedules[j];
+          const aStart = new Date(`January 1, 2000 ${a.start}`).getTime();
+          const aEnd = new Date(`January 1, 2000 ${a.end}`).getTime();
+          const bStart = new Date(`January 1, 2000 ${b.start}`).getTime();
+          const bEnd = new Date(`January 1, 2000 ${b.end}`).getTime();
+          if (aStart < bEnd && bStart < aEnd) return true;
+        }
+      }
+    }
+    return false;
+  })();
+
   return (
     <div>
       <table className="bg-white text-black w-818 h-729 table-fixed border-b border-r border-black">
@@ -297,14 +317,12 @@ const SectionTimeTable = ({ schedules }) => {
         </tbody>
       </table>
 
-      <div className="mt-6">
-        <h3 className="text-red-500 font-extrabold mb-2">Conflicts</h3>
-        <ConflictsTable
-          semScheds={semScheds}
-          timeSlots={timeSlots}
-          daysOfWeek={daysOfWeek}
-        />
-      </div>
+      {conflictsExist && (
+        <div className="mt-6">
+          <h3 className="text-red-500 font-extrabold mb-2">Conflicts</h3>
+          <ConflictsTable semScheds={semScheds} daysOfWeek={daysOfWeek} />
+        </div>
+      )}
     </div>
   );
 };
@@ -337,7 +355,7 @@ const ConflictsTable = ({ semScheds, daysOfWeek }) => {
   });
 
   if (conflicts.length === 0) {
-    return <div className="text-sm text-gray-600">No conflicts detected.</div>;
+    return null;
   }
 
   return (
