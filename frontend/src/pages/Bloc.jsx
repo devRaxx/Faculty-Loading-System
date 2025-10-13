@@ -1,6 +1,7 @@
 import { useState } from "react";
 import SectionSearch from "../components/Filters/SectionSearch";
 import SectionTimeTable from "../components/Tables/SectionTimeTable";
+import { convertToSectionTimeTableData } from "../utils/convertDataforTImeTable";
 import { useSemesterContext } from "../hooks/useSemesterContext";
 
 const Bloc = () => {
@@ -14,18 +15,30 @@ const Bloc = () => {
   };
 
   const hasConflicts = () => {
-    if (!selectedSchedules || selectedSchedules.length < 2) return false;
+    if (!selectedSchedules || selectedSchedules.length === 0) return false;
 
-    // naive overlap detection: check any pair overlaps
-    for (let i = 0; i < selectedSchedules.length; i++) {
-      for (let j = i + 1; j < selectedSchedules.length; j++) {
-        const a = selectedSchedules[i];
-        const b = selectedSchedules[j];
-        const aStart = new Date(`January 1, 2000 ${a.start}`).getTime();
-        const aEnd = new Date(`January 1, 2000 ${a.end}`).getTime();
-        const bStart = new Date(`January 1, 2000 ${b.start}`).getTime();
-        const bEnd = new Date(`January 1, 2000 ${b.end}`).getTime();
-        if (aStart < bEnd && bStart < aEnd) return true;
+    // Flatten schedules by day using the same converter the timetable uses
+    const flat = convertToSectionTimeTableData(selectedSchedules);
+    if (!flat || flat.length === 0) return false;
+
+    const byDay = flat.reduce((acc, s) => {
+      if (!acc[s.day]) acc[s.day] = [];
+      acc[s.day].push(s);
+      return acc;
+    }, {});
+
+    for (const day in byDay) {
+      const arr = byDay[day];
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = i + 1; j < arr.length; j++) {
+          const a = arr[i];
+          const b = arr[j];
+          const aStart = new Date(`January 1, 2000 ${a.start}`).getTime();
+          const aEnd = new Date(`January 1, 2000 ${a.end}`).getTime();
+          const bStart = new Date(`January 1, 2000 ${b.start}`).getTime();
+          const bEnd = new Date(`January 1, 2000 ${b.end}`).getTime();
+          if (aStart < bEnd && bStart < aEnd) return true;
+        }
       }
     }
 
