@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSemesterContext } from "../../hooks/useSemesterContext";
 import { FaAngleDown } from "react-icons/fa6";
 import PropTypes from "prop-types";
@@ -7,39 +7,70 @@ const formatStudentDisplay = ({ name, bloc, yearLevel }) => {
   return `${yearLevel || ""}${name || ""}${bloc ? " - " + bloc : ""}`;
 };
 
+const formatProgramDisplay = ({ name, yearLevel }) => {
+  return `${yearLevel || ""}${name || ""}`;
+};
+
 const SectionSearch = ({ onSelect }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const { semesterSchedules } = useSemesterContext();
 
-  const studentItems = (semesterSchedules || []).flatMap((s) =>
-    (s.students || []).map((stu) => ({
-      display: formatStudentDisplay(stu),
-      scheduleItem: s,
-    }))
-  );
+  // Debounce the input to avoid re-filtering on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchInput.trim()), 150);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
-  // unique by display
-  const uniqueStudentsMap = {};
-  studentItems.forEach((it) => {
-    if (it.display && / - \d+$/.test(it.display)) {
-      if (!uniqueStudentsMap[it.display]) uniqueStudentsMap[it.display] = it;
+  // Build a mapping of display -> schedules (program and block) and an items array
+  const { items, displayToSchedules } = useMemo(() => {
+    const programMap = new Map();
+    const blockMap = new Map();
+
+    (semesterSchedules || []).forEach((sched) => {
+      (sched.students || []).forEach((stu) => {
+        const blockDisplay = formatStudentDisplay(stu);
+        const programDisplay = formatProgramDisplay(stu);
+
+        if (!blockMap.has(blockDisplay)) blockMap.set(blockDisplay, []);
+        blockMap.get(blockDisplay).push(sched);
+
+        if (!programMap.has(programDisplay)) programMap.set(programDisplay, []);
+        programMap.get(programDisplay).push(sched);
+      });
+    });
+
+    const items = [];
+    const displayToSchedules = {};
+
+    // program entries first
+    for (const [progDisplay, schedules] of programMap.entries()) {
+      items.push({ display: progDisplay, type: "program", count: schedules.length });
+      displayToSchedules[progDisplay] = schedules;
     }
-  });
-  const uniqueStudents = Object.values(uniqueStudentsMap);
 
-  const filtered = uniqueStudents
-    .filter((it) =>
-      it.display.toLowerCase().includes(searchInput.toLowerCase())
-    )
-    .slice(0, 20);
+    // then block entries if not already present as a program display
+    for (const [blockDisplay, schedules] of blockMap.entries()) {
+      if (!displayToSchedules[blockDisplay]) {
+        items.push({ display: blockDisplay, type: "block", count: schedules.length });
+        displayToSchedules[blockDisplay] = schedules;
+      }
+    }
+
+    return { items, displayToSchedules };
+  }, [semesterSchedules]);
+
+  const filtered = useMemo(() => {
+    const q = (debouncedSearch || "").toLowerCase();
+    if (!q) return items.slice(0, 20);
+    return items.filter((it) => it.display.toLowerCase().includes(q)).slice(0, 20);
+  }, [items, debouncedSearch]);
 
   const handleSelection = (display) => {
     setSearchInput(display);
     setTimeout(() => setDropdownVisible(false), 100);
-    const matchedSchedules = (semesterSchedules || []).filter((s) =>
-      (s.students || []).some((stu) => formatStudentDisplay(stu) === display)
-    );
+    const matchedSchedules = displayToSchedules[display] || [];
     onSelect(display, matchedSchedules);
   };
 
@@ -66,10 +97,11 @@ const SectionSearch = ({ onSelect }) => {
           filtered.map((it) => (
             <p
               key={it.display}
-              className="text-2xl text-enamelled-jewel h-8 hover:bg-placebo-turquoise cursor-pointer rounded-md px-2"
+              className="text-2xl text-enamelled-jewel h-8 hover:bg-placebo-turquoise cursor-pointer rounded-md px-2 flex justify-between items-center"
               onMouseDown={() => handleSelection(it.display)}
             >
-              {it.display}
+              <span>{it.display}</span>
+              <span className="text-sm text-gray-400">{it.count}</span>
             </p>
           ))
         ) : (

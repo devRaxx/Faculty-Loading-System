@@ -17,7 +17,6 @@ const Bloc = () => {
   const hasConflicts = () => {
     if (!selectedSchedules || selectedSchedules.length === 0) return false;
 
-    // Flatten schedules by day using the same converter the timetable uses
     const flat = convertToSectionTimeTableData(selectedSchedules);
     if (!flat || flat.length === 0) return false;
 
