@@ -46,14 +46,22 @@ const SectionSearch = ({ onSelect }) => {
 
     // program entries first
     for (const [progDisplay, schedules] of programMap.entries()) {
-      items.push({ display: progDisplay, type: "program", count: schedules.length });
+      items.push({
+        display: progDisplay,
+        type: "program",
+        count: schedules.length,
+      });
       displayToSchedules[progDisplay] = schedules;
     }
 
     // then block entries if not already present as a program display
     for (const [blockDisplay, schedules] of blockMap.entries()) {
       if (!displayToSchedules[blockDisplay]) {
-        items.push({ display: blockDisplay, type: "block", count: schedules.length });
+        items.push({
+          display: blockDisplay,
+          type: "block",
+          count: schedules.length,
+        });
         displayToSchedules[blockDisplay] = schedules;
       }
     }
@@ -64,7 +72,9 @@ const SectionSearch = ({ onSelect }) => {
   const filtered = useMemo(() => {
     const q = (debouncedSearch || "").toLowerCase();
     if (!q) return items.slice(0, 20);
-    return items.filter((it) => it.display.toLowerCase().includes(q)).slice(0, 20);
+    return items
+      .filter((it) => it.display.toLowerCase().includes(q))
+      .slice(0, 20);
   }, [items, debouncedSearch]);
 
   const handleSelection = (display) => {

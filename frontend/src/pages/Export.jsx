@@ -5,7 +5,7 @@ import { FaRegFileAlt } from "react-icons/fa";
 import { FaRegFile } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import * as XLSX from "xlsx"; // Import SheetJS
+import * as XLSX from "xlsx";
 
 const Export = () => {
   const navigate = useNavigate();
@@ -13,7 +13,6 @@ const Export = () => {
   const [userData, setUserData] = useState({});
   const params = useParams();
 
-  // Fetch user data
   useEffect(() => {
     (async function () {
       try {
@@ -29,7 +28,6 @@ const Export = () => {
     })();
   }, []);
 
-  // Fetch semester data
   useEffect(() => {
     (async function () {
       try {
@@ -52,7 +50,6 @@ const Export = () => {
     return section;
   };
 
-  // Function to export table data
   const handleExportClick = async (id) => {
     try {
       const res = await fetch(`http://localhost:4000/api/semester/${id}/`, {
@@ -61,7 +58,6 @@ const Export = () => {
       });
       const { schedules } = await res.json();
 
-      // Prepare data for export
       const headers = [
         "Course Code",
         "Course Description",
@@ -77,19 +73,18 @@ const Export = () => {
       ];
 
       const data = schedules.map((schedule) => ({
-        "Course Code": schedule.course.code || "N/A",
-        "Course Description": schedule.course.name || "N/A",
-        Class: schedule.course.type || "N/A",
+        "Course Code": schedule.course?.code || "N/A",
+        "Course Description": schedule.course?.name || "N/A",
+        Class: schedule.course?.type || "N/A",
         Section: schedule.schedule
-          .map(({ section }) => {
-            return formatSection(
+          .map(({ section }) =>
+            formatSection(
               section,
-              schedule.course.type,
+              schedule.course?.type,
               schedule.schedule[0]?.bloc || "1"
-            );
-          })
+            )
+          )
           .join(),
-
         Time: schedule.schedule
           .map(
             (time) => `${time.startTime || "N/A"} - ${time.endTime || "N/A"}`
@@ -98,27 +93,35 @@ const Export = () => {
         Day: schedule.schedule
           .map((time) => time.day?.join(", ") || "N/A")
           .join(", "),
-        Rm: `${schedule.room.building} ${schedule.room.name}` || "N/A",
-        Units: schedule.course.units || "N/A",
-        Students: schedule.students
-          .map((student) => student.name || "N/A")
+        Rm:
+          schedule.room && (schedule.room.building || schedule.room.name)
+            ? `${schedule.room.building || ""} ${
+                schedule.room.name || ""
+              }`.trim()
+            : "N/A",
+        Units: schedule.course?.units || "N/A",
+        Students: (schedule.students || [])
+          .map(
+            (student) =>
+              `${student.yearLevel || ""}${student.name || ""}${
+                student.bloc ? " Bloc " + student.bloc : ""
+              }`.trim() || "N/A"
+          )
           .join(", "),
         FIC:
-          `${schedule.faculty.firstName} ${schedule.faculty.lastName}` || "N/A",
+          `${schedule.faculty?.firstName || ""} ${
+            schedule.faculty?.lastName || ""
+          }`.trim() || "N/A",
         Remarks: schedule.remarks || "N/A",
       }));
 
-      // Create a worksheet
       const worksheet = XLSX.utils.json_to_sheet(data);
 
-      // Add headers manually (optional)
       XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: "A1" });
 
-      // Create a workbook and add the worksheet
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Semester Data");
 
-      // Write the file
       XLSX.writeFile(workbook, "Semester_Data.xlsx");
     } catch (error) {
       console.error("Error exporting data:", error);
