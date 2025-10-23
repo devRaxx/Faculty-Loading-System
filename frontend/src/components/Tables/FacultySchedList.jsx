@@ -6,13 +6,11 @@ import { useSemesterContext } from "../../hooks/useSemesterContext";
 import { PiCopy } from "react-icons/pi";
 import EditFacultyScheduleModal from "../../modals/EditFacultyScheduleModal";
 
-// Helper function to convert time string to minutes for easier comparison
 const timeToMinutes = (timeStr) => {
   const [hours, minutes] = timeStr.split(":").map(Number);
   return hours * 60 + minutes;
 };
 
-// Check if two time ranges overlap
 const hasTimeOverlap = (time1Start, time1End, time2Start, time2End) => {
   const start1 = timeToMinutes(time1Start.replace(/\s*(AM|PM)\s*$/, ""));
   const end1 = timeToMinutes(time1End.replace(/\s*(AM|PM)\s*$/, ""));
@@ -22,20 +20,17 @@ const hasTimeOverlap = (time1Start, time1End, time2Start, time2End) => {
   return start1 < end2 && start2 < end1;
 };
 
-// Check if two schedules have conflicting days
 const hasCommonDays = (days1, days2) => {
   return days1.some((day1) => days2.includes(day1));
 };
 
-// Helper function to format section based on course type
 const formatSection = (section, courseType, bloc) => {
-  if (courseType === "LAB") {
+  if (courseType === "LAB" && section && bloc) {
     return `${section}-${bloc}L`;
   }
-  return section;
+  return section || "";
 };
 
-// Helper function to convert day names to abbreviations
 const convertDayToAbbreviation = (day) => {
   switch (day) {
     case "Monday":
@@ -49,20 +44,29 @@ const convertDayToAbbreviation = (day) => {
     case "Friday":
       return "F";
     default:
-      return day;
+      return day || "";
   }
 };
 
-// Main function to check for schedule conflicts
 const hasScheduleConflict = (currentSchedule, allSchedules) => {
-  for (const otherSchedule of allSchedules) {
-    // Skip comparing with itself
-    if (currentSchedule._id === otherSchedule._id) continue;
+  if (!currentSchedule || !Array.isArray(currentSchedule.schedule)) {
+    return false;
+  }
 
-    // Check each time slot combination
+  for (const otherSchedule of allSchedules) {
+    if (
+      !otherSchedule ||
+      !Array.isArray(otherSchedule.schedule) ||
+      currentSchedule._id === otherSchedule._id
+    ) {
+      continue;
+    }
+
     for (const timeSlot1 of currentSchedule.schedule) {
+      if (!timeSlot1 || !Array.isArray(timeSlot1.day)) continue;
       for (const timeSlot2 of otherSchedule.schedule) {
-        // Check if days overlap and times conflict
+        if (!timeSlot2 || !Array.isArray(timeSlot2.day)) continue;
+
         if (
           hasCommonDays(timeSlot1.day, timeSlot2.day) &&
           hasTimeOverlap(
@@ -93,18 +97,16 @@ const FacultySchedList = ({ edit }) => {
   const params = useParams();
 
   useEffect(() => {
-    (function () {
-      setIsLoading(true);
-      dispatch({
-        type: "FILTER_SELECTED_FACULTY_SCHEDULE_DEPARTMENT",
-        payload: queryParameters.getAll("filter"),
-      });
-      setIsLoading(false);
-    })();
+    setIsLoading(true);
+    dispatch({
+      type: "FILTER_SELECTED_FACULTY_SCHEDULE_DEPARTMENT",
+      payload: queryParameters.getAll("filter"),
+    });
+    setIsLoading(false);
   }, [queryParameters, dispatch]);
 
-  // Function to determine if the row should have a specific background color
   const isHighlighted = (schedule, allSchedules) => {
+    if (!schedule) return false;
     return (
       (schedule.remarks && schedule.remarks.toLowerCase().includes("urgent")) ||
       hasScheduleConflict(schedule, allSchedules)
@@ -127,6 +129,9 @@ const FacultySchedList = ({ edit }) => {
             </th>
             <th className="bg-placebo-turquoise border border-collapse border-enamelled-jewel text-enamelled-jewel border-x-0">
               Section
+            </th>
+            <th className="bg-placebo-turquoise border border-collapse border-enamelled-jewel text-enamelled-jewel border-x-0">
+              Bloc
             </th>
             <th className="bg-placebo-turquoise border border-collapse border-enamelled-jewel text-enamelled-jewel border-x-0">
               Time
@@ -164,23 +169,31 @@ const FacultySchedList = ({ edit }) => {
           {selectedFacultyFilteredSchedules &&
             selectedFacultyFilteredSchedules.length > 0 &&
             selectedFacultyFilteredSchedules.map(
-              ({
-                course,
-                faculty,
-                room,
-                schedule,
-                section,
-                remarks,
-                students,
-                _id,
-              }) => {
+              (schedItem) => {
+                if (!schedItem || !schedItem.course) {
+                  return null;
+                }
+                const {
+                  course,
+                  faculty,
+                  room,
+                  schedule,
+                  remarks,
+                  students,
+                  _id,
+                } = schedItem;
+
+                const scheduleArray = Array.isArray(schedule) ? schedule : [];
+                const studentsArray = Array.isArray(students) ? students : [];
+                const baseSection = scheduleArray[0]?.section;
+
                 return (
                   <tr
                     className={`h-12 hover:bg-placebo-turquoise ${
                       isHighlighted(
                         {
                           _id,
-                          schedule,
+                          schedule: scheduleArray,
                           remarks,
                         },
                         selectedFacultyFilteredSchedules
@@ -190,73 +203,90 @@ const FacultySchedList = ({ edit }) => {
                     }`}
                     key={_id}
                     onMouseDown={() => {
-                      edit &&
-                        (dispatch({
+                      if (edit) {
+                        dispatch({
                           type: "EDIT_FACULTY_SCHEDULE",
                           payload: {
                             _id: _id,
                             course: course,
                             faculty: faculty,
                             room: room,
-                            students: students,
+                            students: studentsArray,
                             remarks: remarks,
-                            schedule: schedule,
+                            schedule: scheduleArray,
                           },
-                        }),
-                        onOpen());
+                        });
+                        onOpen();
+                      }
                     }}
                   >
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {course.code}
+                      {course.code || ""}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {course.name}
+                      {course.name || ""}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {course.type}
+                      {course.type || ""}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {schedule.map(({ section }) => {
-                        const blocNumber = students[0]?.bloc || "1";
-                        return formatSection(section, course.type, blocNumber);
-                      })}
-                    </td>
-                    <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {schedule.map(
-                        (time) =>
-                          Object.keys(time).length !== 0 && (
-                            <p>{time.startTime + " - " + time.endTime}</p>
-                          )
+                      {course.type === "LAB" ? (
+                        studentsArray.map((student, index) => (
+                          <p key={index}>
+                            {formatSection(
+                              baseSection,
+                              course.type,
+                              student.bloc
+                            )}
+                          </p>
+                        ))
+                      ) : (
+                        <p>{baseSection}</p>
                       )}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {schedule.map((time, index) => (
-                        <p key={index}>
-                          {Object.keys(time).length !== 0 &&
-                            time.day
+                      {studentsArray.map((student, index) => (
+                        <p key={index}>{student.bloc}</p>
+                      ))}
+                    </td>
+                    <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
+                      {scheduleArray.map((time, index) =>
+                        time && time.startTime && time.endTime ? (
+                          <p key={index}>{`${time.startTime} - ${time.endTime}`}</p>
+                        ) : null
+                      )}
+                    </td>
+                    <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
+                      {scheduleArray.map((time, index) =>
+                        time && Array.isArray(time.day) ? (
+                          <p key={index}>
+                            {time.day
                               .map((day) => convertDayToAbbreviation(day))
                               .join("")}
-                        </p>
-                      ))}
+                          </p>
+                        ) : null
+                      )}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {room.building + " " + room.name}
+                      {room ? `${room.building || ""} ${room.name || ""}`.trim() : ""}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {course.units}
+                      {course.units || ""}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {students.map(({ name, bloc, yearLevel }, index) => (
-                        <p key={index}>
-                          {yearLevel + name + `${bloc ? " - " + bloc : ""}`}
-                        </p>
-                      ))}
+                      {studentsArray.map(
+                        ({ name, yearLevel }, index) => (
+                          <p key={index}>
+                            {`${yearLevel || ""}${name || ""}`}
+                          </p>
+                        )
+                      )}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {faculty.lastName}
+                      {faculty?.lastName || ""}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {remarks}
+                      {remarks || ""}
                     </td>
                     {edit && (
                       <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
@@ -276,7 +306,7 @@ const FacultySchedList = ({ edit }) => {
         </div>
       )}
 
-      {!semesterSchedules.length > 0 && !isLoading && (
+      {!semesterSchedules?.length > 0 && !isLoading && (
         <div className="mt-24 flex flex-col items-center justify-center">
           <p className="text-7xl font-bold text-enamelled-jewel">
             Start Adding the List

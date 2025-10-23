@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { MdErrorOutline } from "react-icons/md";
-import { FaChalkboardTeacher } from "react-icons/fa";
 import { convertToSectionTimeTableData } from "../../utils/convertDataforTImeTable";
 import PropTypes from "prop-types";
 
@@ -192,7 +191,7 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
                         cellContent = (
                             <div key="co-teach-display" className="flex flex-col items-center justify-center h-full text-blue-800 text-xs px-0 py-0 leading-tight">
                                 <span className="font-semibold flex items-center">
-                                  CO-TEACH <FaChalkboardTeacher size="1em" className="ml-1"/>
+                                  CO-TEACH
                                 </span>
                                 <span className="font-bold">{coTeachingInSlot.a.subject}</span>
                             </div>
