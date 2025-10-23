@@ -4,7 +4,6 @@ import { FaChalkboardTeacher } from "react-icons/fa";
 import { convertToSectionTimeTableData } from "../../utils/convertDataforTImeTable";
 import PropTypes from "prop-types";
 
-// Helper function outside the component
 const timeToDate = (timeStr) => new Date(`January 1, 2000 ${timeStr}`);
 
 const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
@@ -59,7 +58,6 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
     return matchingSlots[displayIndex];
   };
 
-  // Helper function to check overlap between a timeslot string and start/end times
   const timeSlotOverlaps = (timeSlot, startStr, endStr) => {
     const timeArray = timeSlot.split(" - ");
     const slotStart = timeToDate(timeArray[0]).getTime();
@@ -69,11 +67,10 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
     return slotStart < end && slotEnd > start;
   };
 
-  // --- REVISED getShadeAndBorderClass ---
   const getShadeAndBorderClass = (day, timeSlot) => {
-    const baseClasses = "border-enamelled-jewel align-middle p-0 text-xs overflow-hidden whitespace-nowrap text-center"; // Base classes for all cells
-    let shadeClass = "bg-white"; // Default background
-    let borderClasses = "border-l border-b"; // Default borders for empty cells
+    const baseClasses = "border-enamelled-jewel align-middle p-0 text-xs overflow-hidden whitespace-nowrap text-center"; 
+    let shadeClass = "bg-white"; 
+    let borderClasses = "border-l border-b"; 
 
     if (!semScheds[day]) return `${baseClasses} ${shadeClass} ${borderClasses}`;
 
@@ -85,7 +82,6 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
       return `${baseClasses} ${shadeClass} ${borderClasses}`;
     }
 
-    // Determine if this is the first or last time slot within ANY overlapping schedule
     const timeArray = timeSlot.split(" - ");
     const currentSlotStart = timeToDate(timeArray[0]);
     const currentSlotEnd = timeToDate(timeArray[1]);
@@ -98,7 +94,6 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
       currentSlotEnd.getTime() === timeToDate(schedule.end).getTime()
     );
 
-    // Determine conflict/co-teaching status for coloring
     const isConflictSlot = conflicts.some(c =>
       c.day === day &&
       (timeSlotOverlaps(timeSlot, c.a.start, c.a.end) || timeSlotOverlaps(timeSlot, c.b.start, c.b.end))
@@ -108,7 +103,6 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
       ct.day === day && timeSlotOverlaps(timeSlot, ct.a.start, ct.a.end)
     );
 
-    // Determine shade based on precedence
     if (isConflictSlot) {
       shadeClass = "bg-pastel-red";
     } else if (isCoTeachingSlot) {
@@ -117,20 +111,17 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
       shadeClass = "bg-placebo-turquoise";
     }
 
-    // Determine borders for schedule blocks
-    borderClasses = "border-l border-r"; // Left and Right borders are always needed for columns
+    borderClasses = "border-l border-r";
     if (isFirstSlot) {
-        borderClasses += " border-t"; // Add top border only if it's the first slot
+        borderClasses += " border-t";
     }
     if (isLastSlot) {
-        borderClasses += " border-b"; // Add bottom border only if it's the last slot
+        borderClasses += " border-b"; 
     }
 
 
     return `${baseClasses} ${shadeClass} ${borderClasses}`;
   };
-  // --- END REVISED ---
-
 
   const conflictsExist = conflicts && conflicts.length > 0;
   const coTeachingExists = coTeaching && coTeaching.length > 0;
@@ -181,20 +172,16 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
                         ct.day === day && timeSlotOverlaps(timeSlot, ct.a.start, ct.a.end)
                     );
 
-                    // --- Determine Display Slot ---
-                    // Prioritize conflict display slot, then co-teaching, then regular
                     let displayScheduleForSlot = overlappingSchedules[0]; // Default
                     if (conflictInSlot) displayScheduleForSlot = conflictInSlot.a;
                     else if (coTeachingInSlot) displayScheduleForSlot = coTeachingInSlot.a;
 
                     const displaySlot = findDisplayTimeSlot(displayScheduleForSlot, timeSlots);
                     const displaySlotIndex = timeSlots.indexOf(displaySlot);
-                    // Determine faculty display slot - slightly below the main display slot
                     const facultyDisplayIndex = displaySlotIndex !== -1 ? displaySlotIndex + 1 : -1;
                     const facultyDisplaySlot = facultyDisplayIndex !== -1 && facultyDisplayIndex < timeSlots.length ? timeSlots[facultyDisplayIndex] : null;
 
 
-                    // --- Render Content based on type and slot ---
                     if (conflictInSlot && timeSlot === displaySlot) {
                         cellContent = (
                             <div key="conflict-display" className="flex items-center justify-center h-full text-white text-xs px-0 py-0">
@@ -211,7 +198,6 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
                             </div>
                         );
                     } else if (!conflictInSlot && !coTeachingInSlot) {
-                        // Regular schedule display
                         const schedule = overlappingSchedules[0]; // Only display info for the first one if multiple non-conflicting overlaps (rare)
 
                         if (timeSlot === displaySlot) {
@@ -233,7 +219,6 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
                 return (
                   <td
                     key={dayIndex}
-                    // --- Use the combined class function ---
                     className={getShadeAndBorderClass(day, timeSlot)}
                   >
                    {cellContent}
@@ -245,7 +230,6 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
         </tbody>
       </table>
 
-      {/* Render CoTeachingTable */}
       {coTeachingExists && (
         <div className="mt-6">
           <h3 className="text-blue-600 font-extrabold mb-2">
@@ -255,7 +239,6 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
         </div>
       )}
 
-      {/* Render ConflictsTable */}
       {conflictsExist && (
         <div className="mt-6">
           <h3 className="text-red-500 font-extrabold mb-2">Conflicts</h3>
@@ -266,7 +249,6 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
   );
 };
 
-// --- PropTypes and Sub-components remain the same ---
 SectionTimeTable.propTypes = {
   schedules: PropTypes.array,
   conflicts: PropTypes.array,
