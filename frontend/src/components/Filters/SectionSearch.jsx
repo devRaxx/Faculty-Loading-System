@@ -42,7 +42,6 @@ const SectionSearch = ({ onSelect }) => {
     const items = [];
     const displayToSchedules = {};
 
-    // program entries first
     for (const [progDisplay, schedules] of programMap.entries()) {
       items.push({
         display: progDisplay,
@@ -52,7 +51,6 @@ const SectionSearch = ({ onSelect }) => {
       displayToSchedules[progDisplay] = schedules;
     }
 
-    // then block entries if not already present as a program display
     for (const [blockDisplay, schedules] of blockMap.entries()) {
       if (!displayToSchedules[blockDisplay]) {
         items.push({
