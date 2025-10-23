@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Import useEffect
 import SectionSearch from "../components/Filters/SectionSearch";
 import SectionTimeTable from "../components/Tables/SectionTimeTable";
 import { convertToSectionTimeTableData } from "../utils/convertDataforTImeTable";
@@ -9,22 +9,38 @@ const Bloc = () => {
   const [selectedSchedules, setSelectedSchedules] = useState([]);
   const { isLoading } = useSemesterContext();
 
+  // New states for conflicts and co-teaching
+  const [conflictSchedules, setConflictSchedules] = useState([]);
+  const [coTeachingSchedules, setCoTeachingSchedules] = useState([]);
+
   const handleSelect = (display, schedules) => {
     setSelectedSectionDisplay(display);
     setSelectedSchedules(schedules || []);
   };
 
-  const hasConflicts = () => {
-    if (!selectedSchedules || selectedSchedules.length === 0) return false;
+  // Centralized logic to find conflicts and co-teaching
+  useEffect(() => {
+    if (!selectedSchedules || selectedSchedules.length === 0) {
+      setConflictSchedules([]);
+      setCoTeachingSchedules([]);
+      return;
+    }
 
     const flat = convertToSectionTimeTableData(selectedSchedules);
-    if (!flat || flat.length === 0) return false;
+    if (!flat || flat.length === 0) {
+      setConflictSchedules([]);
+      setCoTeachingSchedules([]);
+      return;
+    }
 
     const byDay = flat.reduce((acc, s) => {
       if (!acc[s.day]) acc[s.day] = [];
       acc[s.day].push(s);
       return acc;
     }, {});
+
+    const newConflicts = [];
+    const newCoTeaching = [];
 
     for (const day in byDay) {
       const arr = byDay[day];
@@ -36,18 +52,52 @@ const Bloc = () => {
           const aEnd = new Date(`January 1, 2000 ${a.end}`).getTime();
           const bStart = new Date(`January 1, 2000 ${b.start}`).getTime();
           const bEnd = new Date(`January 1, 2000 ${b.end}`).getTime();
-          if (aStart < bEnd && bStart < aEnd) return true;
+
+          // Check for any overlap
+          if (aStart < bEnd && bStart < aEnd) {
+            // Check for co-teaching: same subject, same start/end time, different faculty
+            const isCoTeaching =
+              a.subject === b.subject &&
+              a.start === b.start &&
+              a.end === b.end &&
+              a.facultyLastName !== b.facultyLastName;
+
+            if (isCoTeaching) {
+              // Avoid duplicating pairs
+              const alreadyAdded = newCoTeaching.some(
+                (item) =>
+                  item.day === day &&
+                  item.a.subject === a.subject &&
+                  item.a.start === a.start
+              );
+              if (!alreadyAdded) {
+                newCoTeaching.push({ day, a, b });
+              }
+            } else {
+              // It's an overlap, but not co-teaching, so it's a true conflict
+              newConflicts.push({ day, a, b });
+            }
+          }
         }
       }
     }
 
-    return false;
-  };
+    setConflictSchedules(newConflicts);
+    setCoTeachingSchedules(newCoTeaching);
+  }, [selectedSchedules]); // Re-run when schedules change
+
+  const hasConflicts = () => conflictSchedules.length > 0;
+  const hasCoTeaching = () => coTeachingSchedules.length > 0;
 
   return !isLoading ? (
     <div className="flex flex-col w-full px-48 space-y-10 justify-center items-center mt-10">
       <div className="flex flex-row w-full justify-evenly">
-        <SectionTimeTable schedules={selectedSchedules} />
+        {/* Pass new props to SectionTimeTable */}
+        <SectionTimeTable
+          schedules={selectedSchedules}
+          conflicts={conflictSchedules}
+          coTeaching={coTeachingSchedules}
+        />
         <div className="flex flex-col space-y-5 mt-20 w-1/4">
           <SectionSearch onSelect={handleSelect} />
           <div className="border border-enamelled-jewel p-4 rounded-md">
@@ -63,6 +113,13 @@ const Bloc = () => {
                     ? "Conflicts are detected. See the conflict table below for details."
                     : "No conflicts were found in this schedule."}
                 </p>
+                {/* Add new message for co-teaching */}
+                {hasCoTeaching() && (
+                  <p className="text-sm text-blue-600 mt-2">
+                    Co-teaching events are detected. See the co-teaching
+                    table below for details.
+                  </p>
+                )}
               </>
             )}
           </div>

@@ -17,13 +17,11 @@ const SectionSearch = ({ onSelect }) => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const { semesterSchedules } = useSemesterContext();
 
-  // Debounce the input to avoid re-filtering on every keystroke
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchInput.trim()), 150);
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  // Build a mapping of display -> schedules (program and block) and an items array
   const { items, displayToSchedules } = useMemo(() => {
     const programMap = new Map();
     const blockMap = new Map();
@@ -80,7 +78,47 @@ const SectionSearch = ({ onSelect }) => {
   const handleSelection = (display) => {
     setSearchInput(display);
     setTimeout(() => setDropdownVisible(false), 100);
+
+    const matchedItem = items.find((it) => it.display === display);
     const matchedSchedules = displayToSchedules[display] || [];
+
+    if (matchedItem && matchedItem.type === "block") {
+      const normalize = (s = "") => s.toString().replace(/\s|-/g, "").toLowerCase();
+      const normBlock = normalize(display);
+
+      const progItem = items.find(
+        (it) => it.type === "program" && normBlock.startsWith(normalize(it.display))
+      );
+
+      const progDisplay = progItem ? progItem.display : display.split(" - ")[0];
+      const programSchedules = displayToSchedules[progDisplay] || [];
+
+      const lectures = programSchedules.filter((s) => {
+        const t = (s.course?.type || "").toString().toUpperCase();
+        return t !== "LAB";
+      });
+
+      const labs = matchedSchedules.filter((s) => {
+        const t = (s.course?.type || "").toString().toUpperCase();
+        return t === "LAB";
+      });
+
+      const map = new Map();
+      [...lectures, ...labs].forEach((s, idx) => {
+        if (!s) return;
+        const key = s._id || JSON.stringify({
+          course: s.course?.code || s.course,
+          section: s.section,
+          start: s.schedule?.[0]?.startTime || s.startTime || idx,
+        });
+        if (!map.has(key)) map.set(key, s);
+      });
+
+      const combined = Array.from(map.values());
+      onSelect(display, combined);
+      return;
+    }
+
     onSelect(display, matchedSchedules);
   };
 
