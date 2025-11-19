@@ -106,9 +106,9 @@ const AddScheduleModal = ({ onClose, isOpen }) => {
                           index={index}
                           weeklySchedule={time}
                           setWeeklySchedule={(updatedSchedule) => {
-                            const newWeeklySchedule = [...weeklySchedule]; // Create a new reference
-                            newWeeklySchedule[index] = updatedSchedule; // Update the specific index
-                            setWeeklySchedule(newWeeklySchedule); // Set the updated array as state
+                            const newWeeklySchedule = [...weeklySchedule];
+                            newWeeklySchedule[index] = updatedSchedule;
+                            setWeeklySchedule(newWeeklySchedule);
                           }}
                         />
                         {index > 0 && (
@@ -129,7 +129,6 @@ const AddScheduleModal = ({ onClose, isOpen }) => {
                     ))}
                 </div>
 
-                {/* Add more section */}
                 <p
                   className={`underline px-1 mt-2 max-w-max cursor-pointer ${
                     weeklySchedule.length == 3 && "hidden"

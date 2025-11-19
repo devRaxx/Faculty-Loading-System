@@ -25,7 +25,7 @@ export const semesterReducer = (state, action) => {
           "SELECT_BLOC Error: Invalid bloc payload",
           action.payload
         );
-        return { ...state, selectedBloc: null, selectedBlocSchedules: [] }; // Prevent crash
+        return { ...state, selectedBloc: null, selectedBlocSchedules: [] };
       }
       return {
         ...state,

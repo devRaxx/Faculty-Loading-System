@@ -108,9 +108,9 @@ const EditFacultyScheduleModal = ({ semester, onClose, isOpen }) => {
                           index={index}
                           weeklySchedule={time}
                           setWeeklySchedule={(updatedSchedule) => {
-                            const newWeeklySchedule = [...weeklySchedule]; // Create a new reference
-                            newWeeklySchedule[index] = updatedSchedule; // Update the specific index
-                            setWeeklySchedule(newWeeklySchedule); // Set the updated array as state
+                            const newWeeklySchedule = [...weeklySchedule];
+                            newWeeklySchedule[index] = updatedSchedule;
+                            setWeeklySchedule(newWeeklySchedule);
                           }}
                         />
                         {index > 0 && (

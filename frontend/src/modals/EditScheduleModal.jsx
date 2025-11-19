@@ -7,8 +7,8 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Button, // Import Button for the new Confirmation Dialog buttons
-  AlertDialog, // Import AlertDialog components
+  Button, 
+  AlertDialog,
   AlertDialogBody,
   AlertDialogFooter,
   AlertDialogHeader,
@@ -16,7 +16,7 @@ import {
   AlertDialogOverlay,
 } from "@chakra-ui/react";
 import { FaXmark } from "react-icons/fa6";
-import { useEffect, useMemo, useState, useRef } from "react"; // Import useRef for AlertDialog
+import { useEffect, useMemo, useState, useRef } from "react";
 import ScheduleMaker from "../components/DetailsMaker/WeeklyScheduleMaker";
 import CourseMaker from "../components/DetailsMaker/CourseMaker";
 import FacultyMaker from "../components/DetailsMaker/FacultyMaker";
@@ -155,9 +155,9 @@ const EditScheduleModal = ({ onClose, isOpen }) => {
                             index={index}
                             weeklySchedule={time}
                             setWeeklySchedule={(updatedSchedule) => {
-                              const newWeeklySchedule = [...weeklySchedule]; // Create a new reference
-                              newWeeklySchedule[index] = updatedSchedule; // Update the specific index
-                              setWeeklySchedule(newWeeklySchedule); // Set the updated array as state
+                              const newWeeklySchedule = [...weeklySchedule];
+                              newWeeklySchedule[index] = updatedSchedule; 
+                              setWeeklySchedule(newWeeklySchedule);
                             }}
                           />
                           {index > 0 && (
