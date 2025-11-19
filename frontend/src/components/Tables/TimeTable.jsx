@@ -121,7 +121,6 @@ const TimeTable = () => {
 
     return `${baseClasses} ${shadeClass} ${borderClasses}`;
   };
-  // --- END REVISED ---
 
   return (
     <>

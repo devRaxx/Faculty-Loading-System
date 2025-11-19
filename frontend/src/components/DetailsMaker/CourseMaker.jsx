@@ -12,15 +12,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSemesterContext } from "../../hooks/useSemesterContext";
 const filterRepeatedCourses = (arr) => {
-  const coursesMap = {}; // Map to track unique colors
+  const coursesMap = {}; 
 
-  // Filter the input array
   const filteredArray = arr.filter((obj) => {
     if (!coursesMap[`${obj.course.code}-${obj.course.type}`]) {
-      coursesMap[`${obj.course.code}-${obj.course.type}`] = true; // Mark color as seen
-      return true; // Include the object in the filtered array
+      coursesMap[`${obj.course.code}-${obj.course.type}`] = true; 
+      return true; 
     }
-    return false; // Exclude the object if color is already seen
+    return false; 
   });
   return filteredArray;
 };
@@ -53,7 +52,6 @@ const CourseMaker = ({
   const [newCourseDescription, setNewCourseDescription] = useState("");
   const [newCourseError, setNewCourseError] = useState(null);
   const params = useParams();
-  // Search Box Input
   const [courseSearch, setCourseSearch] = useState("");
   const [placeholder, setPlaceholder] = useState("Course Code");
 

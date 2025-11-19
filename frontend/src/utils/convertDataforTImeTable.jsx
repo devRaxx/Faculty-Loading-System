@@ -56,6 +56,7 @@ export const convertToSectionTimeTableData = (schedules) => {
   schedules.forEach((item) => {
     item.schedule.forEach((schedule) => {
       const { day, section, startTime, endTime } = schedule;
+      const bloc = Array.from(new Set(item.students?.map(s => s.bloc).filter(Boolean))).join(', ');
 
       if (Array.isArray(day)) {
         day.forEach((singleDay) => {
@@ -66,7 +67,7 @@ export const convertToSectionTimeTableData = (schedules) => {
             start: startTime,
             end: endTime,
             courseType: item.course.type,
-            bloc: item.students?.[0]?.bloc || "1",
+            bloc: bloc || "1",
             facultyLastName: item.faculty?.lastName || "",
             subjectRendered: false,
             sectionRendered: false,
@@ -81,7 +82,7 @@ export const convertToSectionTimeTableData = (schedules) => {
           start: startTime,
           end: endTime,
           courseType: item.course.type,
-          bloc: item.students?.[0]?.bloc || "1",
+          bloc: bloc || "1",
           facultyLastName: item.faculty?.lastName || "",
           subjectRendered: false,
           sectionRendered: false,

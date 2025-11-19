@@ -13,15 +13,14 @@ import {
 } from "@chakra-ui/react";
 
 const filterRepeatedRooms = (arr) => {
-  const roomsMap = {}; // Map to track unique colors
+  const roomsMap = {}; 
 
-  // Filter the input array
   const filteredArray = arr.filter((obj) => {
     if (!roomsMap[obj.room.name]) {
-      roomsMap[obj.room.name] = true; // Mark color as seen
-      return true; // Include the object in the filtered array
+      roomsMap[obj.room.name] = true; 
+      return true; 
     }
-    return false; // Exclude the object if color is already seen
+    return false;
   });
   return filteredArray;
 };

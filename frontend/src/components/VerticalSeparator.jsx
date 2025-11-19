@@ -1,4 +1,3 @@
-// VerticalSeparator.js
 import React from 'react';
 
 const VerticalSeparator = () => {

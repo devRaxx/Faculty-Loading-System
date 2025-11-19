@@ -8,10 +8,8 @@ const BlocSearch = () => {
   const [searchInput, setSearchInput] = useState("");
   const { semesterBlocs, dispatch } = useSemesterContext();
 
-  // Debugging: Log available blocs
   useEffect(() => {}, [semesterBlocs]);
 
-  // Function to format bloc name safely
   const formatBlocName = (bloc) => {
     return bloc && bloc.yearLevel && bloc.name && bloc.bloc
       ? `${bloc.yearLevel}${bloc.name}-${bloc.bloc}`
@@ -21,28 +19,26 @@ const BlocSearch = () => {
   const handleBlocSelection = (bloc) => {
     if (!bloc || !bloc._id) {
       console.error("Invalid bloc selected:", bloc);
-      return; // Prevent dispatching an invalid selection
+      return; 
     }
 
     setSelectedBloc(bloc);
-    setSearchInput(formatBlocName(bloc)); // Update search bar
+    setSearchInput(formatBlocName(bloc)); 
     dispatch({
       type: "SELECT_BLOC",
       payload: bloc,
     });
 
-    setDropdownVisible(false); // Hide dropdown after selection
+    setDropdownVisible(false);
   };
 
-  // Ensure `semesterBlocs` is always an array to prevent crashes
   const blocs = Array.isArray(semesterBlocs) ? semesterBlocs : [];
 
-  // Filter blocs based on search input
   const filteredBlocs = blocs
     .filter((bloc) =>
       formatBlocName(bloc).toLowerCase().includes(searchInput.toLowerCase())
     )
-    .slice(0, 10); // Limit results to 10
+    .slice(0, 10); 
 
   return (
     <div className="relative inline-block w-full">

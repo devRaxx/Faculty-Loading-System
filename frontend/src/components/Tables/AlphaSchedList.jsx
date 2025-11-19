@@ -24,18 +24,15 @@ const AlphaSchedList = ({ editing, searchInput, courseTypeFilter }) => {
     })();
   }, [queryParameters, dispatch]);
 
-  // Helper function to format section based on course type
   const formatSection = (section, courseType, bloc) => {
     if (courseType === "LAB") {
       return `${section}-${bloc}L`;
     }
     return section;
   };
-  // Helper function to format days
   const formatDays = (days) => {
     if (!days) return "";
 
-    // Handle the special case for Tuesday-Thursday
     if (
       days.includes("Tuesday") &&
       days.includes("Thursday") &&
@@ -44,7 +41,6 @@ const AlphaSchedList = ({ editing, searchInput, courseTypeFilter }) => {
       return "TTh";
     }
 
-    // Map for other days
     const dayAbbreviations = {
       Monday: "M",
       Tuesday: "T",
@@ -75,7 +71,6 @@ const AlphaSchedList = ({ editing, searchInput, courseTypeFilter }) => {
           );
         });
 
-    // If a courseTypeFilter is provided, restrict to that course type (e.g., "LAB")
     if (courseTypeFilter) {
       return base.filter(({ course }) => course.type === courseTypeFilter);
     }
@@ -184,8 +179,8 @@ const AlphaSchedList = ({ editing, searchInput, courseTypeFilter }) => {
                   }}
                   className={`h-12 transition-colors duration-150 ${
                     editing
-                      ? "bg-[#eaf9f9] hover:bg-[#d9f2f2]" // Slightly darkened rows while editing
-                      : "hover:bg-placebo-turquoise" // Normal hover when not editing
+                      ? "bg-[#eaf9f9] hover:bg-[#d9f2f2]" 
+                      : "hover:bg-placebo-turquoise"
                   }`}
                 >
                   <td className="border border-collapse border-enamelled-jewel border-b-1 border-x-0 border-t-0">

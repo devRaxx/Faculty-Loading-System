@@ -50,7 +50,6 @@ const ScheduleMaker = ({ edit, weeklySchedule, setWeeklySchedule }) => {
     "Saturday",
   ];
 
-  // Helper function to get the display letter for a day
   const getDayDisplayLetter = (day) => {
     if (day === "Thursday") return "Th";
     else if (day === "Saturday") return "S";
@@ -58,12 +57,11 @@ const ScheduleMaker = ({ edit, weeklySchedule, setWeeklySchedule }) => {
     return day.charAt(0);
   };
 
-  // Get the current single day display value
   const getSingleDayDisplay = () => {
     if (SectionDays.length === 1) {
       return getDayDisplayLetter(SectionDays[0]);
     }
-    return "M"; // Default display
+    return "M"; 
   };
 
   useEffect(() => {

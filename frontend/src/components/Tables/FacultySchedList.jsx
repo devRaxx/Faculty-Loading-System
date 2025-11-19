@@ -28,6 +28,9 @@ const formatSection = (section, courseType, bloc) => {
   if (courseType === "LAB" && section && bloc) {
     return `${section}-${bloc}L`;
   }
+  if (courseType !== "LAB" && section && bloc) {
+    return `${section} - ${bloc}`;
+  }
   return section || "";
 };
 
@@ -43,6 +46,8 @@ const convertDayToAbbreviation = (day) => {
       return "Th";
     case "Friday":
       return "F";
+    case "Saturday":
+      return "S";
     default:
       return day || "";
   }
@@ -129,9 +134,6 @@ const FacultySchedList = ({ edit }) => {
             </th>
             <th className="bg-placebo-turquoise border border-collapse border-enamelled-jewel text-enamelled-jewel border-x-0">
               Section
-            </th>
-            <th className="bg-placebo-turquoise border border-collapse border-enamelled-jewel text-enamelled-jewel border-x-0">
-              Bloc
             </th>
             <th className="bg-placebo-turquoise border border-collapse border-enamelled-jewel text-enamelled-jewel border-x-0">
               Time
@@ -230,7 +232,7 @@ const FacultySchedList = ({ edit }) => {
                       {course.type || ""}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {course.type === "LAB" ? (
+                      {studentsArray.length > 0 ? (
                         studentsArray.map((student, index) => (
                           <p key={index}>
                             {formatSection(
@@ -243,11 +245,6 @@ const FacultySchedList = ({ edit }) => {
                       ) : (
                         <p>{baseSection}</p>
                       )}
-                    </td>
-                    <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
-                      {studentsArray.map((student, index) => (
-                        <p key={index}>{student.bloc}</p>
-                      ))}
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
                       {scheduleArray.map((time, index) =>
@@ -275,9 +272,11 @@ const FacultySchedList = ({ edit }) => {
                     </td>
                     <td className="border border-collapse border-black border-opacity-30 border-b-1 border-x-0 border-t-0 text-center">
                       {studentsArray.map(
-                        ({ name, yearLevel }, index) => (
+                        ({ name, bloc, yearLevel }, index) => (
                           <p key={index}>
-                            {`${yearLevel || ""}${name || ""}`}
+                            {`${yearLevel || ""}${name || ""}${
+                              bloc ? ` - ${bloc}` : ""
+                            }`}
                           </p>
                         )
                       )}

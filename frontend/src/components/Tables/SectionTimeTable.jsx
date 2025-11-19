@@ -202,7 +202,7 @@ const SectionTimeTable = ({ schedules, conflicts, coTeaching }) => {
                         if (timeSlot === displaySlot) {
                             cellContent = (
                                 <div key="sub-display" className="flex items-center justify-center h-full text-enamelled-jewel text-xs px-0 py-0 font-bold leading-tight">
-                                    {schedule.subject}
+                                    {schedule.subject} ({schedule.section} - {schedule.bloc})
                                 </div>
                             );
                         } else if (timeSlot === facultyDisplaySlot && schedule.facultyLastName) {
